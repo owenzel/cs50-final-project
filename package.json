@@ -1,0 +1,23 @@
+{
+  "name": "cs50-final-project",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/owenzel/cs50-final-project.git"
+  },
+  "author": "Olivia Wenzel, Kathy Zhong, Cynthia Chen",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/owenzel/cs50-final-project/issues"
+  },
+  "homepage": "https://github.com/owenzel/cs50-final-project#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}

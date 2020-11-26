@@ -18,6 +18,8 @@
   },
   "homepage": "https://github.com/owenzel/cs50-final-project#readme",
   "dependencies": {
+    "axios": "^0.21.0",
+    "cors": "^2.8.5",
     "express": "^4.17.1",
     "express-validator": "^6.7.0"
   }

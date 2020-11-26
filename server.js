@@ -24,14 +24,14 @@ app.post('/', (req, res) => {
 })
 
 // Test route:
-app.post('/test', [body('text').not().isEmpty().trim()], (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-})
+// app.post('/test', [body('text').not().isEmpty().trim()], (req, res) => {
+//     const errors = validationResult(req);
+//     if (!errors.isEmpty()) {
+//       return res.status(400).json({ errors: errors.array() });
+//     }
+// })
 
-const port = process.env.PORT || 8080;
+const port = process.env.PORT || 5000;
 app.listen(port, () => console.log(`Listening on port ${port}...`));
 
 // /express-static-serve --> /server --> npm init

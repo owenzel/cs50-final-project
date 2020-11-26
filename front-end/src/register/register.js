@@ -15,16 +15,16 @@ class Register extends Component {
     handleSubmit(e) {
         const self = this;
 
-        Axios.post(`http://localhost:8080/`, {
-            firstName: 'Fred',
-            lastName: 'Flintstone'
-          })
-          .then(res => {
-              console.log(res);
-          })
-          .catch((err) => {
-              console.log(err);
-          });
+        // Axios.post(`http://localhost:8080/`, {
+        //     firstName: 'Fred',
+        //     lastName: 'Flintstone'
+        //   })
+        //   .then(res => {
+        //       console.log(res);
+        //   })
+        //   .catch((err) => {
+        //       console.log(err);
+        //   });
 
         self.setState({test: 2})
     }

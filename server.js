@@ -6,14 +6,10 @@ const app = express();
 
 app.use(express.json());
 app.use(cors());
-//app.use(express.static(path.join(__dirname, 'front-end/build')));
 
 // Test route:
 app.get('/', (req, res) => {
-    //res.send('Hello World');
-    //res.sendFile(path.join(__dirname, 'front-end/build', 'index.html'));
-    res.send({ message: "We did it!" });
-
+    res.send('Hello World');
 })
 
 // Test route -- communicates with React

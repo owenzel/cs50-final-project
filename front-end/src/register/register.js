@@ -5,7 +5,7 @@ import './register.css';
 class Register extends Component {
     constructor(props) {
         super(props)
-        this.state = {}
+        this.state = {test: 1}
 
         //Bind functions (test)
         this.handleSubmit = this.handleSubmit.bind(this)
@@ -13,6 +13,8 @@ class Register extends Component {
 
     //Test
     handleSubmit(e) {
+        const self = this;
+
         Axios.post(`http://localhost:8080/`, {
             firstName: 'Fred',
             lastName: 'Flintstone'
@@ -23,6 +25,8 @@ class Register extends Component {
           .catch((err) => {
               console.log(err);
           });
+
+        self.setState({test: 2})
     }
 
     render() {
@@ -47,6 +51,7 @@ class Register extends Component {
                     </div>
                     <input type="submit" value="Submit" />
                 </form>
+                <p>{this.state.test}</p>
             </div>
         )
     }

@@ -6,10 +6,16 @@ const app = express();
 
 app.use(express.json());
 app.use(cors());
+app.use(express.static(path.join(__dirname, 'front-end/build')))
 
 // Test route:
-app.get('/', (req, res) => {
-    res.send('Hello World');
+//app.get('/', (req, res) => {
+    //res.send('Hello World');
+    //res.sendFile(path.join(__dirname, "public", "index.html"));
+//})
+
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname + '/front-end/build/index.html'))
 })
 
 // Test route -- communicates with React
@@ -27,3 +33,8 @@ app.post('/test', [body('text').not().isEmpty().trim()], (req, res) => {
 
 const port = process.env.PORT || 8080;
 app.listen(port, () => console.log(`Listening on port ${port}...`));
+
+// /express-static-serve --> /server --> npm init
+// /public --> index.html and /js and /css --> script.js and styles.css
+// index.js
+// /express-static-serve --> /react-app

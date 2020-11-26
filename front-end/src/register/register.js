@@ -8,11 +8,11 @@ class Register extends Component {
         this.state = {}
 
         //Bind functions (test)
-        this.handleClick = this.handleClick.bind(this)
+        this.handleSubmit = this.handleSubmit.bind(this)
     }
 
     //Test
-    handleClick(e) {
+    handleSubmit(e) {
         Axios.post(`http://localhost:8080/`, {
             firstName: 'Fred',
             lastName: 'Flintstone'
@@ -27,7 +27,27 @@ class Register extends Component {
 
     render() {
         return (
-            <button onClick={() => this.handleClick()}>Test</button>
+            <div>
+                <form onSubmit={this.handleSubmit}>
+                    <div>
+                        <p>Full name:</p>
+                        <input type="text"/>
+                    </div>
+                    <div>
+                        <p>Email:</p>
+                        <input type="email"/>
+                    </div>
+                    <div>
+                        <p>Password:</p>
+                        <input type="text"/>
+                    </div>
+                    <div>
+                        <p>Confirm password:</p>
+                        <input type="text"/>
+                    </div>
+                    <input type="submit" value="Submit" />
+                </form>
+            </div>
         )
     }
 }

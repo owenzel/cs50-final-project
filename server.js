@@ -34,6 +34,8 @@ app.get('*', (req, res) => {
 
 // Handle POST request from register page; insert data into users table
 app.post('/register', (req, res) => {
+  //TODO: Add a hash function for the password and hash passwords before adding them to the database
+
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
@@ -52,6 +54,8 @@ app.post('/register', (req, res) => {
       res.send(JSON.stringify(results));
     });
 })
+
+//TODO: Handle POST requests for the login page -- make sure the user exists, store in the session, and update the last logged in field in the users table
 
 // Handle POST request from profile page; insert data into people table
 app.post('/profile', function(req,res) {

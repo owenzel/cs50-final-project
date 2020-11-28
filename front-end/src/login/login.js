@@ -1,6 +1,5 @@
 import React, { useRef } from 'react';
 import { Row, Col, Container, Form, Button } from 'react-bootstrap';
-import Axios from "axios";
 
 export default function Register(){
     const emailRef = useRef();

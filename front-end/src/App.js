@@ -8,6 +8,10 @@ import Register from './register/register';
 import Login from './login/login';
 import Profile from './profile/profile';
 
+//TODO: Add logic for changing the navbar for when the user is vs. isn't logged in:
+ // When the user is logged in, they should have a home, dashboard, profile, and log out page
+ // When the user is not logged in, they should have a home, register, and log in page
+
 export default function App() {
   useEffect(() => {
     document.body.style.backgroundColor = '#F8FBFE';

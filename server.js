@@ -3,6 +3,7 @@ const path = require('path');
 const { body, validationResult } = require('express-validator'); //set of middlewares that will help clean up user input
 const cors = require("cors");
 const app = express();
+const bodyParser = require('body-parser');
 
 //Connecting to database
 const { Client } = require('pg');
@@ -22,7 +23,7 @@ client.connect();
 
 app.use(express.json());
 app.use(cors());
-app.use(express.static(path.join(__dirname, 'front-end/build')))
+app.use(express.static(path.join(__dirname, 'front-end/build')));
 
 // Test route:
 //app.get('/', (req, res) => {
@@ -30,15 +31,34 @@ app.use(express.static(path.join(__dirname, 'front-end/build')))
     //res.sendFile(path.join(__dirname, "public", "index.html"));
 //})
 
-app.get('/dbtest', (req, res) => {
-  client.query('SELECT * FROM users;', (err, res) => {
-    if (err) throw err;
-    for (let row of res.rows) {
-      console.log(JSON.stringify(row));
-    }
-    client.end();
-  });
-})
+// Handle POST request from profile, insert data into people table
+app.post('/profile', function(req,res) {
+  
+  console.log(req.body);
+
+  if (req.body.organization && req.body.address) {
+    let str = "INSERT INTO people(organization, address, user_id) VALUES ('"+ req.body.organization + "','" + req.body.address + "'," + 2 + ");";
+    console.log(str);
+
+    client.query(str, function (error, results, fields) {
+      if(error) throw error;
+      client.end();
+
+      res.send(JSON.stringify(results));
+    });
+  }
+});
+
+// // Test database
+// app.get('/dbtest', (req, res) => {
+//   client.query('SELECT * FROM users;', (err, res) => {
+//     if (err) throw err;
+//     for (let row of res.rows) {
+//       console.log(JSON.stringify(row));
+//     }
+//     client.end();
+//   });
+// })
 
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname + '/front-end/build/index.html'))

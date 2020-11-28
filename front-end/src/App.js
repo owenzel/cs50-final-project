@@ -5,6 +5,7 @@ import './App.css';
 //Components:
 import Home from './home/home';
 import Register from './register/register';
+import Profile from './profile/profile';
 
 export default function App() {
   return (
@@ -16,6 +17,7 @@ export default function App() {
       <Switch>
           <Route path="/" component={Home} exact />
           <Route path="/register" component={Register} />
+          <Route path="/profile" component={Profile} />
       </Switch>
     </div>
   );
@@ -34,6 +36,9 @@ function Navbar() {
           </li>
           <li class="nav-item">
             <Link className="nav-link" to="/register">Register </Link>
+          </li>
+          <li class="nav-item">
+            <Link className="nav-link" to="/profile">Profile </Link>
           </li>
         </ul>
       </div>

@@ -1,60 +1,61 @@
-import React, {Component} from 'react';
+import React, { useRef } from 'react';
+import { Row, Col, Container, Form, Button } from 'react-bootstrap';
 import Axios from "axios";
 import './register.css';
 
-class Register extends Component {
-    constructor(props) {
-        super(props)
-        this.state = {test: 1}
+export default function Register(){
+    const usernameRef = useRef();
+    const emailRef = useRef();
+    const passwordRef = useRef();
+    const confirmPasswordRef = useRef();
 
-        //Bind functions (test)
-        this.handleSubmit = this.handleSubmit.bind(this)
+    function handleSubmit(e) {
+        // If the passwords don't match, alert the users
+        if (passwordRef.current.value !== confirmPasswordRef.current.value)
+        {
+            e.preventDefault();
+            alert("Passwords must match!");
+            return;
+        }
+
+        // If the passwords match and all fields are filled out, POST the data
+        Axios.post('/register', {
+            username: usernameRef.current.value,
+            email: emailRef.current.value,
+            password: passwordRef.current.value,
+        }).then((response) => {
+            console.log(response);
+        });
     }
-
-    //Test
-    handleSubmit(e) {
-        const self = this;
-
-        // Axios.post(`http://localhost:8080/`, {
-        //     firstName: 'Fred',
-        //     lastName: 'Flintstone'
-        //   })
-        //   .then(res => {
-        //       console.log(res);
-        //   })
-        //   .catch((err) => {
-        //       console.log(err);
-        //   });
-
-        self.setState({test: 2})
-    }
-
-    render() {
-        return (
-            <div>
-                <form onSubmit={this.handleSubmit}>
-                    <div>
-                        <p>Full name:</p>
-                        <input type="text"/>
-                    </div>
-                    <div>
-                        <p>Email:</p>
-                        <input type="email"/>
-                    </div>
-                    <div>
-                        <p>Password:</p>
-                        <input type="text"/>
-                    </div>
-                    <div>
-                        <p>Confirm password:</p>
-                        <input type="text"/>
-                    </div>
-                    <input type="submit" value="Submit" />
-                </form>
-                <p>{this.state.test}</p>
-            </div>
-        )
-    }
+    
+    return (
+        <Container className="mt-5">
+            <Row>
+                <Col className="mb-3"><h1>Register</h1></Col>
+            </Row>
+            <Row>
+                <Col>
+                    <Form onSubmit={handleSubmit} className="w-100">
+                        <Form.Group>
+                            <Form.Label>Enter Your Full Name</Form.Label>
+                            <Form.Control type="text" ref={usernameRef} required ></Form.Control>
+                        </Form.Group>
+                        <Form.Group>
+                            <Form.Label>Enter Your Email</Form.Label>
+                            <Form.Control type="email" ref={emailRef} required ></Form.Control>
+                        </Form.Group>
+                        <Form.Group>
+                            <Form.Label>Enter Your Password</Form.Label>
+                            <Form.Control type="password" ref={passwordRef} required ></Form.Control>
+                        </Form.Group>
+                        <Form.Group>
+                            <Form.Label>Enter Your Password Again</Form.Label>
+                            <Form.Control type="password" ref={confirmPasswordRef} required ></Form.Control>
+                        </Form.Group>
+                        <Button type="submit">Register</Button>
+                    </Form>
+                </Col>
+            </Row>
+        </Container>
+    )
 }
-
-export default Register;

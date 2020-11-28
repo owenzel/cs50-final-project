@@ -1,9 +1,10 @@
 const express = require('express'); // a framework for better handling http requests & responses
 const path = require('path');
 const { body, validationResult } = require('express-validator'); //set of middlewares that will help clean up user input
+const bodyParser = require('body-parser');
+const uuid = require('uuid');
 const cors = require("cors");
 const app = express();
-const bodyParser = require('body-parser');
 
 //Connecting to database
 const { Client } = require('pg');
@@ -21,17 +22,38 @@ const client = new Client({
 
 client.connect();
 
+// Middleware
 app.use(express.json());
 app.use(cors());
 app.use(express.static(path.join(__dirname, 'front-end/build')));
 
-// Test route:
-//app.get('/', (req, res) => {
-    //res.send('Hello World');
-    //res.sendFile(path.join(__dirname, "public", "index.html"));
-//})
+// Serve static React files
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname + '/front-end/build/index.html'))
+})
 
-// Handle POST request from profile, insert data into people table
+// Handle POST request from register page; insert data into users table
+app.post('/register', (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    //const id = uuid.v4();
+    const date = new Date().toLocaleDateString(); //need to fix this
+    const query = "INSERT INTO users(username, password, email, created_on, last_login) VALUES('" + req.body.username + "','" + req.body.password + "','" + req.body.email + "','" + date + "','" + date + "');";
+    client.query(query, function (error, results, fields) {
+      if(error)
+      {
+        throw error;
+      }
+      client.end();
+
+      res.send(JSON.stringify(results));
+    });
+})
+
+// Handle POST request from profile page; insert data into people table
 app.post('/profile', function(req,res) {
   
   console.log(req.body);
@@ -60,27 +82,5 @@ app.post('/profile', function(req,res) {
 //   });
 // })
 
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname + '/front-end/build/index.html'))
-})
-
-// Test route -- communicates with React
-app.post('/', (req, res) => {
-  console.log(req.body);
-})
-
-// Test route:
-// app.post('/test', [body('text').not().isEmpty().trim()], (req, res) => {
-//     const errors = validationResult(req);
-//     if (!errors.isEmpty()) {
-//       return res.status(400).json({ errors: errors.array() });
-//     }
-// })
-
 const port = process.env.PORT || 5000;
 app.listen(port, () => console.log(`Listening on port ${port}...`));
-
-// /express-static-serve --> /server --> npm init
-// /public --> index.html and /js and /css --> script.js and styles.css
-// index.js
-// /express-static-serve --> /react-app

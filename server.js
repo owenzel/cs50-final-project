@@ -41,7 +41,7 @@ app.post('/register', (req, res) => {
 
     //const id = uuid.v4();
     const date = new Date().toLocaleDateString(); //need to fix this
-    const query = "INSERT INTO users(username, password, email, created_on, last_login) VALUES('" + req.body.username + "','" + req.body.password + "','" + req.body.email + "','" + date + "','" + date + "');";
+    const query = "INSERT INTO users(name, password, email, created_on, last_login) VALUES('" + req.body.name + "','" + req.body.password + "','" + req.body.email + "','" + date + "','" + date + "');";
     client.query(query, function (error, results, fields) {
       if(error)
       {

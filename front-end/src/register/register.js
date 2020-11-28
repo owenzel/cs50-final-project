@@ -4,7 +4,7 @@ import Axios from "axios";
 import './register.css';
 
 export default function Register(){
-    const usernameRef = useRef();
+    const nameRef = useRef();
     const emailRef = useRef();
     const passwordRef = useRef();
     const confirmPasswordRef = useRef();
@@ -20,7 +20,7 @@ export default function Register(){
 
         // If the passwords match and all fields are filled out, POST the data
         Axios.post('/register', {
-            username: usernameRef.current.value,
+            name: nameRef.current.value,
             email: emailRef.current.value,
             password: passwordRef.current.value,
         }).then((response) => {
@@ -38,7 +38,7 @@ export default function Register(){
                     <Form onSubmit={handleSubmit} className="w-100">
                         <Form.Group>
                             <Form.Label>Enter Your Full Name</Form.Label>
-                            <Form.Control type="text" ref={usernameRef} required ></Form.Control>
+                            <Form.Control type="text" ref={nameRef} required ></Form.Control>
                         </Form.Group>
                         <Form.Group>
                             <Form.Label>Enter Your Email</Form.Label>

@@ -1,13 +1,9 @@
-const secret = 'mysecretsshhh';
-
 const express = require('express'); // a framework for better handling http requests & responses
+const session = require('express-session');
 const path = require('path');
-const { body, validationResult } = require('express-validator'); //set of middlewares that will help clean up user input
+//const { body, validationResult } = require('express-validator'); //set of middlewares that will help clean up user input
 const bodyParser = require('body-parser');
-const cors = require("cors");
 const jwt = require('jsonwebtoken');
-const cookieParser = require('cookie-parser');
-const withAuth = require('./middleware');
 const app = express();
 
 //Connecting to database
@@ -25,21 +21,24 @@ const client = new Client({
 });
 
 // Middleware
-app.use(express.urlencoded({ extended: false }))
-app.use(express.json());
-app.use(cors());
-app.use(cookieParser());
+app.use(session({
+  secret: 'okc',
+  resave: true,
+  saveUninitialized: true
+}));
+app.use(bodyParser.urlencoded({ extended: false }))
+app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'front-end/build')));
 
-app.get('/checkToken', withAuth, function(req, res) {
-  res.sendStatus(200);
-});
-
-//Test:
-app.get('/secret', withAuth, function(req, res) {
-  console.log('The password is potato');
-  res.send('The password is potato');
-});
+//For login testing:
+app.get('/test', (req, res) => {
+  if (req.session.loggedin) {
+    res.send('Welcome back, ' + req.session.email);
+  } else {
+    res.send('Please log in to view this page!');
+  }
+  res.end();
+})
 
 // Serve static React files
 app.get('*', (req, res) => {
@@ -53,45 +52,44 @@ app.post('/register', async (req, res) => {
     const hashedPassword = djb2_xor(req.body.password);
     const query = "INSERT INTO users(name, password, email, created_on, last_login) VALUES($1, $2, $3, $4, $5);";
     client.connect();
-    client.query(query, [req.body.name, hashedPassword, req.body.email, date, date], function (error, results, fields) {
+    client.query(query, [req.body.name, hashedPassword, req.body.email, date, date], (error, results, fields) => {
       if(error)
       {
         throw error;
       }
-      client.end();
-
       res.send(JSON.stringify(results));
-    });
+    }); client.end();
   } catch (err) {
     res.redirect('/register')
   }
 })
 
-//TODO: Handle POST requests for the login page -- make sure the user exists, store in the session, and update the last logged in field in the users table
-app.post('/login', async (req, res) => {
-  try {
-      //query the database for the user's entered log in information
-      client.connect();
-      const user = await client.query("SELECT * FROM users WHERE email = $1;", [req.body.email]);
-      client.end();
-
-     // if there is no user with the given email address, throw an error
-      if (!user) {
-       res.status(400).json({error: 'Incorrect email'});
-      } else { //if there is a user with the given email address, make sure they entered the correct 
-        if (user.rows[0].password != djb2_xor(req.body.password)) {
-         res.status(401).json({error: 'Incorrect email or password'});
-        } else {
-          // Issue token
-          const payload = { email: user.rows[0].email };
-          const token = jwt.sign(payload, secret, {
-            expiresIn: '1h'
-          });
-          res.cookie('token', token, { httpOnly: true }).sendStatus(200);
+// Handle POST request from login page; store logged in user's session -- Credit: https://codeshack.io/basic-login-system-nodejs-express-mysql/
+app.post('/login', (req, res) => {
+  const email = req.body.email;
+  const password = req.body.password;
+  if (email) {
+    client.connect();
+    client.query("SELECT * FROM users WHERE email = $1;", [email])
+    .then(result => {
+      console.log(result);
+      if (result.rows.length > 0) {
+        if (result.rows[0].password != djb2_xor(password)) {
+          res.status(400).json({error: 'Incorrect password'});
+          return res.redirect('/');
+        } else { //If the user entered a correct email & password combination
+          //TODO: update the last logged in field in the users table
+          req.session.loggedin = true;
+          req.session.email = email;
+          console.log('logged in');
+          res.redirect('/');
         }
-    }
-  } catch (err) {
-    res.redirect('/login')
+      } else {
+        res.status(400).json({error: 'Incorrect email'});
+      }
+    })
+    .catch(err => console.log(err.stack))
+    .then(() => client.end())
   }
 })
 
@@ -104,12 +102,13 @@ app.post('/profile', function(req,res) {
     let str = "INSERT INTO people(organization, address, user_id) VALUES ('"+ req.body.organization + "','" + req.body.address + "'," + 2 + ");";
     console.log(str);
     client.connect();
-    client.query(str, function (error, results, fields) {
-      if(error) throw error;
-      client.end();
+    client.query(str, (error, results, fields) => {
+        if (error)
+          throw error;
+        client.end();
 
-      res.send(JSON.stringify(results));
-    });
+        res.send(JSON.stringify(results));
+      });
   }
 });
 

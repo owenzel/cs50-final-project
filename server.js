@@ -46,21 +46,28 @@ app.get('*', (req, res) => {
 })
 
 // Handle POST request from register page; insert data into users table
+//TODO: Standardize the format to match that of login
 app.post('/register', async (req, res) => {
-  try {
-    const date = new Date().toLocaleDateString(); //need to fix this
-    const hashedPassword = djb2_xor(req.body.password);
-    const query = "INSERT INTO users(name, password, email, created_on, last_login) VALUES($1, $2, $3, $4, $5);";
+  const name = req.body.name;
+  const email = req.body.email;
+  const password = req.body.password;
+  if (name && email && password)
+  {
+    const hashedPassword = djb2_xor(password);
     client.connect();
-    client.query(query, [req.body.name, hashedPassword, req.body.email, date, date], (error, results, fields) => {
-      if(error)
-      {
-        throw error;
+    client.query("INSERT INTO users(name, password, email, created_on, last_login) VALUES($1, $2, $3, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);", [name, hashedPassword, email])
+    .then(result => {
+      if (result.rows.length > 0) {
+        res.send(JSON.stringify(results));
+      } else {
+        res.status(400).json({error: 'Error connecting with the database'});
       }
-      res.send(JSON.stringify(results));
-    }); client.end();
-  } catch (err) {
-    res.redirect('/register')
+    })
+    .catch(err => {
+      console.log(err.stack);
+      res.redirect('/register');
+    })
+    .then(() => client.end())
   }
 })
 
@@ -68,7 +75,7 @@ app.post('/register', async (req, res) => {
 app.post('/login', (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
-  if (email) {
+  if (email && password) {
     client.connect();
     client.query("SELECT * FROM users WHERE email = $1;", [email])
     .then(result => {
@@ -82,7 +89,7 @@ app.post('/login', (req, res) => {
           req.session.loggedin = true;
           req.session.email = email;
           console.log('logged in');
-          res.redirect('/');
+          res.send({loggedIn: true});
         }
       } else {
         res.status(400).json({error: 'Incorrect email'});

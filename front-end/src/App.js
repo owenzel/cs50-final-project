@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import { Route, Switch, Link } from 'react-router-dom';
+import Axios from "axios";
 import './App.css';
 
 //Components:
@@ -13,6 +14,7 @@ import Profile from './profile/profile';
  // When the user is not logged in, they should have a home, register, and log in page
 
 export default function App() {
+  //Set the background color of every page:
   useEffect(() => {
     document.body.style.backgroundColor = '#F8FBFE';
   }, []);

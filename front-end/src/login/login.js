@@ -1,5 +1,6 @@
 import React, { useRef } from 'react';
 import { Row, Col, Container, Form, Button } from 'react-bootstrap';
+import Axios from "axios";
 
 export default function Register(){
     const emailRef = useRef();
@@ -7,12 +8,12 @@ export default function Register(){
 
     function handleSubmit(e) {
         // If all fields are filled out, POST the data
-        // Axios.post('/login', {
-        //     email: emailRef.current.value,
-        //     password: passwordRef.current.value,
-        // }).then((response) => {
-        //     console.log(response);
-        // });
+        Axios.post('/login', {
+            email: emailRef.current.value,
+            password: passwordRef.current.value,
+        }).then((response) => {
+            console.log(response);
+        });
     }
     
     return (

@@ -1,6 +1,4 @@
-if (process.env.NODE_ENV !== 'production') {
-  require('dotenv').config()
-}
+const secret = 'mysecretsshhh';
 
 const express = require('express'); // a framework for better handling http requests & responses
 const path = require('path');
@@ -32,6 +30,10 @@ app.use(express.json());
 app.use(cors());
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'front-end/build')));
+
+app.get('/checkToken', withAuth, function(req, res) {
+  res.sendStatus(200);
+});
 
 //Test:
 app.get('/secret', withAuth, function(req, res) {
@@ -71,6 +73,7 @@ app.post('/login', async (req, res) => {
       //query the database for the user's entered log in information
       client.connect();
       const user = await client.query("SELECT * FROM users WHERE email = $1;", [req.body.email]);
+      client.end();
 
      // if there is no user with the given email address, throw an error
       if (!user) {
@@ -80,12 +83,11 @@ app.post('/login', async (req, res) => {
          res.status(401).json({error: 'Incorrect email or password'});
         } else {
           // Issue token
-          const payload = user.rows[0].email;
-          const token = jwt.sign(payload, SESSION_SECRET, {
+          const payload = { email: user.rows[0].email };
+          const token = jwt.sign(payload, secret, {
             expiresIn: '1h'
           });
           res.cookie('token', token, { httpOnly: true }).sendStatus(200);
-          res.redirect('/');
         }
     }
   } catch (err) {

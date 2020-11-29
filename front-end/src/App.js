@@ -7,6 +7,7 @@ import Home from './home/home';
 import Register from './register/register';
 import Login from './login/login';
 import Profile from './profile/profile';
+import Dashboard from './dashboard/dashboard';
 
 //TODO: Add logic for changing the navbar for when the user is vs. isn't logged in:
  // When the user is logged in, they should have a home, dashboard, profile, and log out page
@@ -28,6 +29,7 @@ export default function App() {
           <Route path="/register" component={Register} />
           <Route path="/login" component={Login} />
           <Route path="/profile" component={Profile} />
+          <Route path="/dashboard" component={Dashboard} />
       </Switch>
     </div>
   );
@@ -55,6 +57,9 @@ function Navbar() {
           </li>
           <li class="nav-item">
             <Link className="nav-link" to="/login" style={linkStyle}>Log in </Link>
+          </li>
+          <li class="nav-item">
+            <Link className="nav-link" to="/dashboard" style={linkStyle}>Dashboard </Link>
           </li>
         </ul>
       </div>

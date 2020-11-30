@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Route, Redirect, Switch, Link } from 'react-router-dom';
+import { Nav } from 'react-bootstrap';
 import Axios from "axios";
 import './App.css';
 
@@ -81,41 +82,34 @@ function Navbar(props) {
   //Navigation links to render based on whether the user is logged in
   const navLinks = props.loggedIn ? 
   <>
-    <li class="nav-item">
+    <Nav.Item as="li">
       <Link className="nav-link" to="/dashboard" style={linkStyle}>Dashboard </Link>
-    </li>
-    <li class="nav-item">
+    </Nav.Item>
+    <Nav.Item as="li">
       <Link className="nav-link" to="/profile" style={linkStyle}>Profile </Link>
-    </li>
-    <li class="nav-item">
+    </Nav.Item>
+    <Nav.Item as="li">
       <Link className="nav-link" to="/logout" style={linkStyle}>Log Out </Link>
-    </li>
+    </Nav.Item>
   </>
   :
   <>
-    <li class="nav-item">
+    <Nav.Item as="li">
       <Link className="nav-link" to="/register" style={linkStyle}>Register </Link>
-    </li>
-    <li class="nav-item">
+    </Nav.Item>
+    <Nav.Item as="li">
       <Link className="nav-link" to="/login" style={linkStyle}>Log In </Link>
-    </li>
+    </Nav.Item>
   </>
 
   return (
     <>
-    <nav class="navbar navbar-expand-lg" style={{ backgroundColor:'#FAFAFA' }}>
-      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav">
-          <li class="nav-item">
-            <Link className="nav-link" to="/" style={linkStyle}>Home </Link>
-          </li>
-          {navLinks}
-        </ul>
-      </div>
-    </nav>
+    <Nav defaultActiveKey="/home" as="ul">
+      <Nav.Item as="li">
+        <Link className="nav-link" to="/" style={linkStyle}>Home </Link>
+      </Nav.Item>
+      {navLinks}
+    </Nav>
     </>
   );
 };

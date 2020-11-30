@@ -9,6 +9,8 @@ export default function Login(props){
     let history = useHistory();
 
     function handleSubmit(e) {
+        e.preventDefault();
+
         // If all fields are filled out, POST the data
         Axios.post('/login', {
             email: emailRef.current.value,
@@ -16,7 +18,6 @@ export default function Login(props){
         }).then((response) => {
             console.log(response);
             props.checkLoggedIn();
-            history.push('/');
         });
     }
 

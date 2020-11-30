@@ -29,6 +29,9 @@ export default function Register(props){
             console.log(response);
             props.checkLoggedIn();
             history.push('/login');
+        })
+        .catch(error => {
+            console.log(error);
         });
     }
 

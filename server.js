@@ -57,7 +57,7 @@ app.post('/register', async (req, res) => {
       console.log(err.stack);
       res.redirect('/register');
     })
-    .then(() => client.end())
+    // .then(() => client.end())
   }
 })
 
@@ -139,6 +139,7 @@ function djb2_xor(str) {
 const port = process.env.PORT || 5000;
 app.listen(port, () => console.log(`Listening on port ${port}...`));
 
+// TODO: end client connection when server closes
 process.on('SIGTERM', () => {
   console.info('SIGTERM signal received.');
   console.log('Closing http server.');

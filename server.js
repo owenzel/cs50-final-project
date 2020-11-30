@@ -30,16 +30,6 @@ app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'front-end/build')));
 
-//For login testing:
-app.get('/test', (req, res) => {
-  if (req.session.loggedin) {
-    res.send('Welcome back, ' + req.session.email);
-  } else {
-    res.send('Please log in to view this page!');
-  }
-  res.end();
-})
-
 // Serve static React files
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname + '/front-end/build/index.html'))
@@ -79,7 +69,6 @@ app.post('/login', (req, res) => {
     client.connect();
     client.query("SELECT * FROM users WHERE email = $1;", [email])
     .then(result => {
-      console.log(result);
       if (result.rows.length > 0) {
         if (result.rows[0].password != djb2_xor(password)) {
           res.status(400).json({error: 'Incorrect password'});
@@ -88,7 +77,7 @@ app.post('/login', (req, res) => {
           //TODO: update the last logged in field in the users table
           req.session.loggedin = true;
           req.session.email = email;
-          console.log('logged in');
+          console.log('logged in: ' + req.session.loggedin);
           res.send({loggedIn: true});
         }
       } else {
@@ -99,6 +88,9 @@ app.post('/login', (req, res) => {
     .then(() => client.end())
   }
 })
+
+// Handle POST request; tell React app that the user is logged in
+app.post('/loggedIn', (req, res) => res.send({loggedIn: req.session.loggedin}));
 
 // Handle POST request from profile page; insert data into people table
 app.post('/profile', function(req,res) {

@@ -1,13 +1,15 @@
 import React, { useRef } from 'react';
+import { Link, useHistory } from 'react-router-dom';
 import { Row, Col, Container, Form, Button } from 'react-bootstrap';
 import Axios from "axios";
 import './register.css';
 
-export default function Register(){
+export default function Register(props){
     const nameRef = useRef();
     const emailRef = useRef();
     const passwordRef = useRef();
     const confirmPasswordRef = useRef();
+    let history = useHistory();
 
     function handleSubmit(e) {
         // If the passwords don't match, alert the users
@@ -25,8 +27,12 @@ export default function Register(){
             password: passwordRef.current.value,
         }).then((response) => {
             console.log(response);
+            props.checkLoggedIn();
+            history.push('/login');
         });
     }
+
+    props.checkLoggedIn();
     
     return (
         <Container className="mt-5">
@@ -52,7 +58,7 @@ export default function Register(){
                             <Form.Label>Enter Your Password Again</Form.Label>
                             <Form.Control type="password" ref={confirmPasswordRef} required ></Form.Control>
                         </Form.Group>
-                        <Button type="submit">Register</Button>
+                        <Link to="/login"><Button type="submit">Register</Button></Link>
                     </Form>
                 </Col>
             </Row>

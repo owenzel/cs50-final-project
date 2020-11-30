@@ -12,7 +12,8 @@ import mouseClick from './../assets/mouse-click.png'; //Credit: http://clipart-l
 import schedule from './../assets/schedule.png'; //Credit: http://clipart-library.com/newhp/105-1059879_clipart-calendar-meeting-schedule.png
 import friends from './../assets/friends.png'; //Credit: http://clipart-library.com/newhp/10-102347_best-friends-png-best-friend-clipart-png.png
 
-export default function Home(){
+export default function Home(props){
+    props.checkLoggedIn();
     return (
         <>
         <Container className="text-center" style={{ backgroundColor: "#B9E7CF"}}>

@@ -1,10 +1,12 @@
 import React, { useRef } from 'react';
+import { useHistory } from 'react-router-dom';
 import { Row, Col, Container, Form, Button } from 'react-bootstrap';
 import Axios from "axios";
 
-export default function Register(){
+export default function Login(props){
     const emailRef = useRef();
     const passwordRef = useRef();
+    let history = useHistory();
 
     function handleSubmit(e) {
         // If all fields are filled out, POST the data
@@ -13,8 +15,12 @@ export default function Register(){
             password: passwordRef.current.value,
         }).then((response) => {
             console.log(response);
+            props.checkLoggedIn();
+            history.push('/');
         });
     }
+
+    props.checkLoggedIn();
     
     return (
         <Container className="mt-5">

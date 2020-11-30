@@ -67,6 +67,7 @@ export default function App() {
             {/*TODO: Implement Log Out Page */}
             {loggedIn ? <div>Log Out</div> : <Redirect to="/" />}
           </Route>
+          <Redirect from="*" to="/" />
       </Switch>
     </div>
   );

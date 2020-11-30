@@ -78,6 +78,9 @@ app.post('/login', (req, res) => {
           req.session.loggedin = true;
           req.session.email = email;
           console.log('logged in: ' + req.session.loggedin);
+
+          req.session.user_id = result.rows[0].user_id;
+
           res.send({loggedIn: true});
         }
       } else {
@@ -85,42 +88,42 @@ app.post('/login', (req, res) => {
       }
     })
     .catch(err => console.log(err.stack))
-    .then(() => client.end())
+
+    /* 
+      Commented this part out and connecting the client in the individual page in order to reuse the client 
+      (else received "Client was closed and is not queryable" error) 
+      Currently, client is instead closed upon filling in the profile form, but would probably be better to close when logging out
+    */
+
+    // .then(() => client.end())
   }
 })
 
 // Handle POST request; tell React app that the user is logged in
 app.post('/loggedIn', (req, res) => res.send({loggedIn: req.session.loggedin}));
 
+// TODO: Handle GET request from profile page: if already filled out display current data, can update information if they want, otherwise display form
+
 // Handle POST request from profile page; insert data into people table
 app.post('/profile', function(req,res) {
   
-  console.log(req.body);
+  // console.log(req.body);
+  const organization = req.body.organization;
+  const address = req.body.address;
 
-  if (req.body.organization && req.body.address) {
-    let str = "INSERT INTO people(organization, address, user_id) VALUES ('"+ req.body.organization + "','" + req.body.address + "'," + 2 + ");";
-    console.log(str);
-    client.connect();
-    client.query(str, (error, results, fields) => {
-        if (error)
-          throw error;
-        client.end();
+  if (organization) {
+    const str = "INSERT INTO people(organization, address, user_id) VALUES ($1, $2, $3)"
+    const values = [organization, address, req.session.user_id]
 
-        res.send(JSON.stringify(results));
-      });
+    // client.connect();
+    client.query(str, values)
+    .catch(err => {
+      console.log(err.stack);
+      res.redirect('/dashboard');
+    })
+    .then(() => client.end())
   }
 });
-
-// // Test database
-// app.get('/dbtest', (req, res) => {
-//   client.query('SELECT * FROM users;', (err, res) => {
-//     if (err) throw err;
-//     for (let row of res.rows) {
-//       console.log(JSON.stringify(row));
-//     }
-//     client.end();
-//   });
-// })
 
 //Hash function -- credit: https://gist.github.com/eplawless/52813b1d8ad9af510d85
 function djb2_xor(str) {
@@ -135,3 +138,15 @@ function djb2_xor(str) {
 
 const port = process.env.PORT || 5000;
 app.listen(port, () => console.log(`Listening on port ${port}...`));
+
+process.on('SIGTERM', () => {
+  console.info('SIGTERM signal received.');
+  console.log('Closing http server.');
+  server.close(() => {
+    console.log('Http server closed.');
+    client.end(false, () => {
+      console.log('Client connection closed.');
+      process.exit(0);
+    });
+  });
+});

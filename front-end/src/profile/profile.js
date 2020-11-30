@@ -1,89 +1,48 @@
-import React, {Component} from 'react';
+// import React, {Component} from 'react';
+import React, { useRef } from 'react';
+import { useHistory } from 'react-router-dom';
+import { Row, Col, Container, Form, Button } from 'react-bootstrap';
 import Axios from "axios";
 import './profile.css';
 
-class Profile extends Component {
-    constructor(props) {
-        super(props)
-        this.state = {
-            test: 1,
-            organization: '',
-            address: ''
-        }
+export default function Profile(props){
+    const orgRef = useRef();
+    const addressRef = useRef();
 
-        //Bind functions (test)
-        this.handleSubmit = this.handleSubmit.bind(this);
-    }
-
-    componentDidUpdate() {
-        var data = {
-            organization: this.state.organization,
-            address: this.state.address
-        } 
-        
-        console.log(JSON.stringify(data));
-
-        if (this.state.organization != '' && this.state.address != '') {
-            Axios.post('/profile', {
-                organization: this.state.organization,
-                address: this.state.address
-            }).then(function (response) {
-                console.log(response);
-            });
-            
-            
-            // fetch('/profile', {
-            //     method: 'POST',
-            //     // headers: {'Content-Type':'applications/json'},
-            //     headers: {'Content-Type':'plain/text'},
-            //     body: JSON.stringify(data)
-            // }).then(function(response) {
-            //     if (response.status >= 400) {
-            //         throw new Error("Bad response from server");
-            //     }
-            //     return response.json();
-            // }).then(function(data) {
-            //     console.log(data)
-            // }).catch(function(err) {
-            //     console.log(err)
-            // });
-        }
-    }
-
-    //Test
-    handleSubmit(event) {
+    function handleSubmit(event) {
+        // If all fields are filled out, POST the data
         event.preventDefault();
 
-        this.setState({
-            organization: event.target[0].value,
-            address: event.target[1].value
+        Axios.post('/profile', {
+            organization: orgRef.current.value,
+            address: addressRef.current.value,
+        }).then((response) => {
+            console.log(response)
+        }).catch(error => {
+            console.log(error.response)
         });
     }
-
-    render() {
-        return (
-            <div>
-                <form onSubmit={this.handleSubmit} method="POST">
-                    <div>
-                        <p>Organization:</p>
-                        <input 
-                            type="text" 
-                            name="organization" 
-                        />
-                    </div>
-                    <div>
-                        <p>Address:</p>
-                        <input 
-                            type="text" 
-                            name="address" 
-                        />
-                    </div>
-                    <input type="submit" value="Submit" />
-                </form>
-                <p>{this.state.test}</p>
-            </div>
-        )
-    }
+    
+    return (
+        <Container className="mt-5">
+            <Row>
+                <Col className="mb-3"><h1>Profile</h1></Col>
+            </Row>
+            <Row>
+                <Col>
+                    <Form onSubmit={handleSubmit} className="w-100">
+                        <Form.Group>
+                            <Form.Label>Enter the organization you are affiliated with</Form.Label>
+                            <Form.Control type="text" ref={orgRef} required ></Form.Control>
+                        </Form.Group>
+                        <Form.Group>
+                            <Form.Label>Enter your address (optional)</Form.Label>
+                            <Form.Control type="text" placeholder="XXXX Street Name, City, State ZIP"ref={addressRef} ></Form.Control>
+                        </Form.Group>
+                        <Button type="submit">Update Profile</Button>
+                    </Form>
+                </Col>
+            </Row>
+        </Container>
+    )
 }
-
-export default Profile;

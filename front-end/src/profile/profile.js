@@ -1,6 +1,4 @@
-// import React, {Component} from 'react';
 import React, { useRef } from 'react';
-import { useHistory } from 'react-router-dom';
 import { Row, Col, Container, Form, Button } from 'react-bootstrap';
 import Axios from "axios";
 import './profile.css';
@@ -10,7 +8,7 @@ export default function Profile(props){
     const addressRef = useRef();
 
     function handleSubmit(event) {
-        // If all fields are filled out, POST the data
+        // If the organization field is filled out, POST the data
         event.preventDefault();
 
         Axios.post('/profile', {

@@ -113,9 +113,6 @@ function Navbar(props) {
             <Link className="nav-link" to="/" style={linkStyle}>Home </Link>
           </li>
           {navLinks}
-          {/* <li class="nav-item">
-            <Link className="nav-link" to="/profile" style={linkStyle}>Profile </Link>
-          </li> */}
         </ul>
       </div>
     </nav>

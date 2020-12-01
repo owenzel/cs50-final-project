@@ -15,7 +15,7 @@ import Profile from './profile/profile';
  // When the user is not logged in, they should have a home, register, and log in page
 
 export default function App() {
-  const [loggedIn, setLoggedIn] = useState(false);
+  const [user, setUser] = useState({ loggedIn: false, email: '' });
 
   //Set the background color of every page:
   useEffect(() => {
@@ -24,7 +24,7 @@ export default function App() {
 
   return (
     <div>
-      <NavBar loggedIn={loggedIn} setLoggedIn={setLoggedIn}/>
+      <NavBar loggedIn={user.loggedIn} setUser={setUser}/>
 
       {/* A <Switch> looks through its children <Route>s and 
           renders the first one that matches the current URL. */}
@@ -33,16 +33,16 @@ export default function App() {
             <Home />
           </Route>
           <Route path="/register">
-            {loggedIn ? <Redirect to="/dashboard" /> : <Register />}
+            {user.loggedIn ? <Redirect to="/dashboard" /> : <Register/>}
           </Route>
           <Route path="/login">
-            {loggedIn ? <Redirect to="/dashboard" /> : <Login setLoggedIn={setLoggedIn}/>}
+            {user.loggedIn ? <Redirect to="/dashboard" /> : <Login setUser={setUser}/>}
           </Route>
           <Route path="/dashboard">
-            {loggedIn ? <Dashboard /> : <Redirect to="/login" />}
+            {user.loggedIn ? <Dashboard /> : <Redirect to="/login" />}
           </Route>
           <Route path="/profile">
-            {loggedIn ? <Profile /> : <Redirect to="/login" />}
+            {user.loggedIn ? <Profile /> : <Redirect to="/login" />}
           </Route>
           <Redirect from="*" to="/" />
       </Switch>

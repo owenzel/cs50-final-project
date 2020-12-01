@@ -15,13 +15,13 @@ export default function Login(props){
         }).then((response) => {
             console.log(response);
             if (response.data.loggedIn) {
-                props.setLoggedIn(true);
+                props.setUser({ loggedIn: true, email: response.data.email });
             } else {
-                props.setLoggedIn(false);
+                props.setUser({ loggedIn: false, email: '' });
             }
         });
     }
-    
+
     return (
         <Container className="mt-5">
             <Row>

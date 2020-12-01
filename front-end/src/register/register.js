@@ -1,5 +1,4 @@
 import React, { useRef } from 'react';
-import { Link } from 'react-router-dom';
 import { Row, Col, Container, Form, Button } from 'react-bootstrap';
 import Axios from "axios";
 import './register.css';
@@ -56,7 +55,7 @@ export default function Register(props){
                             <Form.Label>Enter Your Password Again</Form.Label>
                             <Form.Control type="password" ref={confirmPasswordRef} required ></Form.Control>
                         </Form.Group>
-                        <Link to="/login"><Button type="submit">Register</Button></Link>
+                        <Button type="submit">Register</Button>
                     </Form>
                 </Col>
             </Row>

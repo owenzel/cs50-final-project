@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { Link, useHistory } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Row, Col, Container, Form, Button } from 'react-bootstrap';
 import Axios from "axios";
 import './register.css';
@@ -9,7 +9,6 @@ export default function Register(props){
     const emailRef = useRef();
     const passwordRef = useRef();
     const confirmPasswordRef = useRef();
-    let history = useHistory();
 
     function handleSubmit(e) {
         // If the passwords don't match, alert the users
@@ -27,15 +26,11 @@ export default function Register(props){
             password: passwordRef.current.value,
         }).then((response) => {
             console.log(response);
-            props.checkLoggedIn();
-            history.push('/login');
         })
         .catch(error => {
             console.log(error);
         });
     }
-
-    props.checkLoggedIn();
     
     return (
         <Container className="mt-5">

@@ -22,7 +22,7 @@ export default function Navbar(props) {
         <Link className="nav-link" to="/profile" style={linkStyle}>Profile </Link>
       </Nav.Item>
       <Nav.Item as="li">
-        <Link className="nav-link" style={linkStyle}><Logout /></Link>
+        <Link className="nav-link" style={linkStyle} to="/" refresh="true"><Logout setLoggedIn={props.setLoggedIn}/></Link>
       </Nav.Item>
     </>
     :

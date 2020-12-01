@@ -1,19 +1,18 @@
 import React from 'react';
-import { withRouter } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Button } from 'react-bootstrap';
 import Axios from "axios";
 
 function Logout(props){
     function handleClick(e) {
-        //Send a POST request to log othe user out
+        props.setLoggedIn(false);
+        
+        //Send a POST request to log the user out
         Axios.post('/logout').
-            then((response) => {
-            console.log(response);
-            props.checkLoggedIn();
-        }).
         then((response) => {
-            this.props.history.push('/');
-        });
+            console.log(response);
+        })
+        .catch(err => console.log(err));
     }
     
     return (
@@ -21,4 +20,4 @@ function Logout(props){
     )
 }
 
-export default withRouter(Logout);
+export default Logout;

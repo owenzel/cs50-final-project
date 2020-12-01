@@ -20,6 +20,9 @@ const client = new Client({
     }
 });
 
+//Connect to the database
+client.connect();
+
 // Middleware
 app.use(session({
   secret: 'okc',
@@ -44,7 +47,7 @@ app.post('/register', (req, res) => {
   if (name && email && password)
   {
     const hashedPassword = djb2_xor(password);
-    client.connect();
+    //client.connect();
     client.query("INSERT INTO users(name, password, email, created_on, last_login) VALUES($1, $2, $3, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);", [name, hashedPassword, email])
     .then(result => {
       if (result.rows.length > 0) {
@@ -66,7 +69,7 @@ app.post('/login', (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
   if (email && password) {
-    client.connect();
+    //client.connect();
     client.query("SELECT * FROM users WHERE email = $1;", [email])
     .then(result => {
       if (result.rows.length > 0) {
@@ -99,9 +102,6 @@ app.post('/login', (req, res) => {
   }
 })
 
-// Handle POST request; tell React app that the user is logged in
-app.post('/loggedIn', (req, res) => res.send({loggedIn: req.session.loggedin}));
-
 // TODO: Handle GET request from profile page: if already filled out display current data, can update information if they want, otherwise display form
 
 // Handle POST request from profile page; insert data into people table
@@ -125,8 +125,10 @@ app.post('/profile', function(req,res) {
   }
 });
 
+//Handle POST requests from the logout page
 app.post('/logout', (req, res) => {
-  req.session.destroy((err) => console.log(err))
+  //Clear the session cookies
+  req.session.destroy((err) => console.log(err));
 })
 
 //Hash function -- credit: https://gist.github.com/eplawless/52813b1d8ad9af510d85

@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { Route, Redirect, Switch, Link } from 'react-router-dom';
-import { Nav } from 'react-bootstrap';
+import { Route, Redirect, Switch } from 'react-router-dom';
 import Axios from "axios";
 import './App.css';
 
 //Components:
+import NavBar from './navbar/navbar';
 import Home from './home/home';
 import Register from './register/register';
 import Login from './login/login';
@@ -43,7 +43,7 @@ export default function App() {
 
   return (
     <div>
-      <Navbar loggedIn={loggedIn}/>
+      <NavBar loggedIn={loggedIn}/>
 
       {/* A <Switch> looks through its children <Route>s and 
           renders the first one that matches the current URL. */}
@@ -72,45 +72,3 @@ export default function App() {
     </div>
   );
 }
-
-function Navbar(props) {
-  const linkStyle = {
-    color: "black",
-    fontSize: "150%",
-    marginRight: "3px"
-  }
-
-  //Navigation links to render based on whether the user is logged in
-  const navLinks = props.loggedIn ? 
-  <>
-    <Nav.Item as="li">
-      <Link className="nav-link" to="/dashboard" style={linkStyle}>Dashboard </Link>
-    </Nav.Item>
-    <Nav.Item as="li">
-      <Link className="nav-link" to="/profile" style={linkStyle}>Profile </Link>
-    </Nav.Item>
-    <Nav.Item as="li">
-      <Link className="nav-link" to="/logout" style={linkStyle}>Log Out </Link>
-    </Nav.Item>
-  </>
-  :
-  <>
-    <Nav.Item as="li">
-      <Link className="nav-link" to="/register" style={linkStyle}>Register </Link>
-    </Nav.Item>
-    <Nav.Item as="li">
-      <Link className="nav-link" to="/login" style={linkStyle}>Log In </Link>
-    </Nav.Item>
-  </>
-
-  return (
-    <>
-    <Nav defaultActiveKey="/home" as="ul">
-      <Nav.Item as="li">
-        <Link className="nav-link" to="/" style={linkStyle}>Home </Link>
-      </Nav.Item>
-      {navLinks}
-    </Nav>
-    </>
-  );
-};

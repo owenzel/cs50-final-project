@@ -1,5 +1,5 @@
 import React from 'react';
-import { Route, Switch, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Card, Button } from 'react-bootstrap';
 
 export default function InfoCard(props) {
@@ -8,8 +8,7 @@ export default function InfoCard(props) {
         backgroundColor: '#DBF5F7',
     };
 
-    //TODO: add a prop for changing the to property of link and adjust home.js accordingly
-    const button = props.buttonText ? <Link to="/register"><Button variant="info">{props.buttonText}</Button></Link> : <></>;
+    const button = props.buttonText ? <Link to={props.buttonLink}><Button variant="info">{props.buttonText}</Button></Link> : <></>;
 
     return (
         <Card style={style}>

@@ -1,12 +1,10 @@
 import React, { useRef } from 'react';
-import { useHistory } from 'react-router-dom';
 import { Row, Col, Container, Form, Button } from 'react-bootstrap';
 import Axios from "axios";
 
 export default function Login(props){
     const emailRef = useRef();
     const passwordRef = useRef();
-    let history = useHistory();
 
     function handleSubmit(e) {
         e.preventDefault();

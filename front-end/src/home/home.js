@@ -29,7 +29,8 @@ export default function Home(props){
                         imgSrc={nameTag}
                         title="1. Sign Up for an Account"
                         body="Click 'Register', and enter your name, email, and password to sign up for a free account!"
-                        buttonText="Register" 
+                        buttonText="Register"
+                        buttonLink="/register"
                     />
                 </Col>
                 <Col className="lg-4">
@@ -37,7 +38,8 @@ export default function Home(props){
                         imgSrc={questionMarks}
                         title="2. Log in and Fill Out Your Profile"
                         body="After you create your account, log in, click 'Profile', and fill out the questionnaire so we can find your new friend."
-                        buttonText="Log In" 
+                        buttonText="Log In"
+                        buttonLink="/login"
                     />
                 </Col>
                 <Col className="lg-4">
@@ -54,7 +56,8 @@ export default function Home(props){
                         imgSrc={mouseClick}
                         title="4. Log in and Visit the Dashboard"
                         body="Log into this website, and visit your dashboard to learn more about your new friend."
-                        buttonText="Log In" 
+                        buttonText="Log In"
+                        buttonLink="/login"
                     />
                 </Col>
                 <Col className="lg-4">
@@ -62,7 +65,8 @@ export default function Home(props){
                         imgSrc={schedule}
                         title="5. Schedule an Online Meet-Up"
                         body="Once you've been matched, you're ready to schedule an online get-to-know-you session. Click the 'Schedule' button on the dashboard to get the process started."
-                        buttonText="Dashboard" 
+                        buttonText="Dashboard"
+                        buttonLink="/dashboard"
                     />
                 </Col>
                 <Col className="lg-4">
@@ -70,7 +74,8 @@ export default function Home(props){
                         imgSrc={friends}
                         title="6. Continue Getting to Know Each Other"
                         body="We will continue to send you emails to schedule future meet ups based on the availability you set in your profile. If you would like to stop having meetings or change the schedule, please log in and update your profile."
-                        buttonText="Dashboard" 
+                        buttonText="Dashboard"
+                        buttonLink="/dashboard"
                     />
                 </Col>
             </Row>

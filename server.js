@@ -37,7 +37,7 @@ app.get('*', (req, res) => {
 
 // Handle POST request from register page; insert data into users table
 //TODO: Standardize the format to match that of login
-app.post('/register', async (req, res) => {
+app.post('/register', (req, res) => {
   const name = req.body.name;
   const email = req.body.email;
   const password = req.body.password;
@@ -124,6 +124,10 @@ app.post('/profile', function(req,res) {
     .then(() => client.end())
   }
 });
+
+app.post('/logout', (req, res) => {
+  req.session.destroy((err) => console.log(err))
+})
 
 //Hash function -- credit: https://gist.github.com/eplawless/52813b1d8ad9af510d85
 function djb2_xor(str) {

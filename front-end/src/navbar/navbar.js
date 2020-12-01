@@ -2,6 +2,9 @@ import React from 'react';
 import { Nav } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 
+//Components:
+import Logout from '../logout/logout';
+
 export default function Navbar(props) {
     const linkStyle = {
       color: "black",
@@ -19,7 +22,7 @@ export default function Navbar(props) {
         <Link className="nav-link" to="/profile" style={linkStyle}>Profile </Link>
       </Nav.Item>
       <Nav.Item as="li">
-        <Link className="nav-link" to="/logout" style={linkStyle}>Log Out </Link>
+        <Link className="nav-link" style={linkStyle}><Logout /></Link>
       </Nav.Item>
     </>
     :

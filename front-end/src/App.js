@@ -63,10 +63,6 @@ export default function App() {
           <Route path="/profile">
             {loggedIn ? <Profile /> : <Redirect to="/login" />}
           </Route>
-          <Route path="/logout">
-            {/*TODO: Implement Log Out Page */}
-            {loggedIn ? <div>Log Out</div> : <Redirect to="/" />}
-          </Route>
           <Redirect from="*" to="/" />
       </Switch>
     </div>

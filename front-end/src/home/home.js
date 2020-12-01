@@ -21,9 +21,9 @@ export default function Home() {
                 <p className="lead font-weight-normal mx-auto">Meet your new best friend!</p>
             </Row>
         </Container>
-        <Container className="container marketing mb-5">
+        <Container className="container marketing mx-auto mb-5">
             <Row>
-                <Col className="lg-4">
+                <Col >
                     <InfoCard
                         imgSrc={nameTag}
                         title="1. Sign Up for an Account"
@@ -32,7 +32,7 @@ export default function Home() {
                         buttonLink="/register"
                     />
                 </Col>
-                <Col className="lg-4">
+                <Col >
                     <InfoCard
                         imgSrc={questionMarks}
                         title="2. Log in and Fill Out Your Profile"
@@ -41,16 +41,14 @@ export default function Home() {
                         buttonLink="/login"
                     />
                 </Col>
-                <Col className="lg-4">
+                <Col >
                     <InfoCard
                         imgSrc={emailIcon}
                         title="3. Check Your Email"
                         body="Look out for an email from us within 48 of completing your profile, notifying you that you've been matched."
                     />
                 </Col>
-            </Row>
-            <Row>
-                <Col className="lg-4">
+                <Col >
                     <InfoCard
                         imgSrc={mouseClick}
                         title="4. Log in and Visit the Dashboard"
@@ -59,7 +57,7 @@ export default function Home() {
                         buttonLink="/login"
                     />
                 </Col>
-                <Col className="lg-4">
+                <Col >
                     <InfoCard
                         imgSrc={schedule}
                         title="5. Schedule an Online Meet-Up"
@@ -68,7 +66,7 @@ export default function Home() {
                         buttonLink="/dashboard"
                     />
                 </Col>
-                <Col className="lg-4">
+                <Col >
                     <InfoCard
                         imgSrc={friends}
                         title="6. Continue Getting to Know Each Other"

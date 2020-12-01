@@ -1,5 +1,4 @@
 import React from 'react';
-import { Link } from "react-router-dom";
 import { Button } from 'react-bootstrap';
 import Axios from "axios";
 
@@ -8,8 +7,8 @@ function Logout(props){
         props.setLoggedIn(false);
         
         //Send a POST request to log the user out
-        Axios.post('/logout').
-        then((response) => {
+        Axios.post('/logout')
+        .then((response) => {
             console.log(response);
         })
         .catch(err => console.log(err));

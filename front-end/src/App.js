@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Route, Redirect, Switch } from 'react-router-dom';
+import { Route, Redirect, Switch, useHistory } from 'react-router-dom';
 import './App.css';
 
 //Components:
@@ -33,7 +33,7 @@ export default function App() {
             <Home />
           </Route>
           <Route path="/register">
-            {user.loggedIn ? <Redirect to="/dashboard" /> : <Register/>}
+            {user.loggedIn ? <Redirect to="/dashboard" /> : <Register />}
           </Route>
           <Route path="/login">
             {user.loggedIn ? <Redirect to="/dashboard" /> : <Login setUser={setUser}/>}

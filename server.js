@@ -42,7 +42,6 @@ app.get('*', (req, res) => {
 // Handle POST request from register page; insert data into users table
 //TODO: Add error check to make sure user doesn't already have account
 app.post('/register', (req, res) => {
-  console.log('received post request');
   const name = req.body.name;
   const email = req.body.email;
   const password = req.body.password;
@@ -52,7 +51,7 @@ app.post('/register', (req, res) => {
     client.query("INSERT INTO users(name, password, email, created_on, last_login) VALUES($1, $2, $3, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);", [name, hashedPassword, email])
     .then(result => {
       if (result.rowCount === 1) {
-        res.send(JSON.stringify(results));
+        res.send(JSON.stringify(result));
       } else {
         res.status(400).send('Error connecting with the database');
       }

@@ -25,6 +25,7 @@ export default function Register(props){
             password: passwordRef.current.value,
         }).then((response) => {
             console.log(response);
+            alert("You are registered! Now you can log in with your new account!");
         })
         .catch(error => {
             console.log(error);

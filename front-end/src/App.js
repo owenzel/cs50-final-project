@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Route, Redirect, Switch } from 'react-router-dom';
-import Axios from "axios";
+import { Route, Redirect, Switch, useHistory } from 'react-router-dom';
 import './App.css';
 
 //Components:
@@ -16,52 +15,34 @@ import Profile from './profile/profile';
  // When the user is not logged in, they should have a home, register, and log in page
 
 export default function App() {
-  const [loggedIn, setLoggedIn] = useState(false);
+  const [user, setUser] = useState({ loggedIn: false, email: '' });
 
   //Set the background color of every page:
   useEffect(() => {
     document.body.style.backgroundColor = '#F8FBFE';
   }, []);
 
-  const checkLoggedIn = () => {
-    //Check whether the user is logged in
-    Axios.post('/loggedIn', {
-    })
-    .then(response => {
-      if (response.data.loggedIn) {
-        console.log('logged in on front-end');
-        setLoggedIn(true);
-      } else {
-        console.log('not logged in on front-end');
-        setLoggedIn(false);
-      }
-    })
-    .catch(error => {
-      console.log(error);
-    });
-  }
-
   return (
     <div>
-      <NavBar loggedIn={loggedIn}/>
+      <NavBar loggedIn={user.loggedIn} setUser={setUser}/>
 
       {/* A <Switch> looks through its children <Route>s and 
           renders the first one that matches the current URL. */}
       <Switch>
           <Route path="/" exact>
-            <Home checkLoggedIn={checkLoggedIn}/>
+            <Home />
           </Route>
           <Route path="/register">
-            {loggedIn ? <Redirect to="/dashboard" /> : <Register checkLoggedIn={checkLoggedIn}/>}
+            {user.loggedIn ? <Redirect to="/dashboard" /> : <Register />}
           </Route>
           <Route path="/login">
-            {loggedIn ? <Redirect to="/dashboard" /> : <Login checkLoggedIn={checkLoggedIn}/>}
+            {user.loggedIn ? <Redirect to="/dashboard" /> : <Login setUser={setUser}/>}
           </Route>
           <Route path="/dashboard">
-            {loggedIn ? <Dashboard /> : <Redirect to="/login" />}
+            {user.loggedIn ? <Dashboard /> : <Redirect to="/login" />}
           </Route>
           <Route path="/profile">
-            {loggedIn ? <Profile /> : <Redirect to="/login" />}
+            {user.loggedIn ? <Profile /> : <Redirect to="/login" />}
           </Route>
           <Redirect from="*" to="/" />
       </Switch>

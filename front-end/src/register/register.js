@@ -1,5 +1,4 @@
 import React, { useRef } from 'react';
-import { Link, useHistory } from 'react-router-dom';
 import { Row, Col, Container, Form, Button } from 'react-bootstrap';
 import Axios from "axios";
 import './register.css';
@@ -9,7 +8,6 @@ export default function Register(props){
     const emailRef = useRef();
     const passwordRef = useRef();
     const confirmPasswordRef = useRef();
-    let history = useHistory();
 
     function handleSubmit(e) {
         // If the passwords don't match, alert the users
@@ -27,15 +25,12 @@ export default function Register(props){
             password: passwordRef.current.value,
         }).then((response) => {
             console.log(response);
-            props.checkLoggedIn();
-            history.push('/login');
+            alert("You are registered! Now you can log in with your new account!");
         })
         .catch(error => {
             console.log(error);
         });
     }
-
-    props.checkLoggedIn();
     
     return (
         <Container className="mt-5">
@@ -61,7 +56,7 @@ export default function Register(props){
                             <Form.Label>Enter Your Password Again</Form.Label>
                             <Form.Control type="password" ref={confirmPasswordRef} required ></Form.Control>
                         </Form.Group>
-                        <Link to="/login"><Button type="submit">Register</Button></Link>
+                        <Button type="submit">Register</Button>
                     </Form>
                 </Col>
             </Row>

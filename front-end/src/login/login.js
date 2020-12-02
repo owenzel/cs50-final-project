@@ -14,12 +14,14 @@ export default function Login(props){
             password: passwordRef.current.value,
         }).then((response) => {
             console.log(response);
-            props.checkLoggedIn();
+            if (response.data.loggedIn) {
+                props.setUser({ loggedIn: true, email: response.data.email });
+            } else {
+                props.setUser({ loggedIn: false, email: '' });
+            }
         });
     }
 
-    props.checkLoggedIn();
-    
     return (
         <Container className="mt-5">
             <Row>

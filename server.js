@@ -8,6 +8,7 @@ const app = express();
 
 //Connecting to database
 const { Client } = require('pg');
+const e = require('express');
 
 const client = new Client({
     user: 'ldqkazfnoxapti',
@@ -20,6 +21,9 @@ const client = new Client({
     }
 });
 
+//Connect to the database
+client.connect();
+
 // Middleware
 app.use(session({
   secret: 'okc',
@@ -31,7 +35,7 @@ app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'front-end/build')));
 
 // Handle POST request from register page; insert data into users table
-//TODO: Standardize the format to match that of login
+//TODO: Add error check to make sure user doesn't already have account
 app.post('/register', (req, res) => {
   const name = req.body.name;
   const email = req.body.email;
@@ -39,20 +43,17 @@ app.post('/register', (req, res) => {
   if (name && email && password)
   {
     const hashedPassword = djb2_xor(password);
-    client.connect();
     client.query("INSERT INTO users(name, password, email, created_on, last_login) VALUES($1, $2, $3, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);", [name, hashedPassword, email])
     .then(result => {
-      if (result.rows.length > 0) {
-        res.send(JSON.stringify(results));
+      if (result.rowCount === 1) {
+        res.send(JSON.stringify(result));
       } else {
-        res.status(400).json({error: 'Error connecting with the database'});
+        res.status(400).send('Error connecting with the database');
       }
     })
-    .catch(err => {
-      console.log(err.stack);
-      res.redirect('/register');
-    })
-    // .then(() => client.end())
+    .catch(err => { console.log(err.stack); })
+  } else {
+    res.status(400).send('Server error.');
   }
 })
 
@@ -61,13 +62,11 @@ app.post('/login', (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
   if (email && password) {
-    client.connect();
     client.query("SELECT * FROM users WHERE email = $1;", [email])
     .then(result => {
       if (result.rows.length > 0) {
         if (result.rows[0].password != djb2_xor(password)) {
-          res.status(400).json({error: 'Incorrect password'});
-          return res.redirect('/');
+          return res.status(400).send('Incorrect password');
         } else { //If the user entered a correct email & password combination
           //TODO: update the last logged in field in the users table
           req.session.loggedin = true;
@@ -76,26 +75,15 @@ app.post('/login', (req, res) => {
 
           req.session.user_id = result.rows[0].user_id;
 
-          res.send({loggedIn: true});
+          res.send({loggedIn: true, email: email});
         }
       } else {
-        res.status(400).json({error: 'Incorrect email'});
+        res.status(400).send('Incorrect email');
       }
     })
     .catch(err => console.log(err.stack))
-
-    /* 
-      Commented this part out and connecting the client in the individual page in order to reuse the client 
-      (else received "Client was closed and is not queryable" error) 
-      Currently, client is instead closed upon filling in the profile form, but would probably be better to close when logging out
-    */
-
-    // .then(() => client.end())
   }
 })
-
-// Handle POST request; tell React app that the user is logged in
-app.post('/loggedIn', (req, res) => res.send({loggedIn: req.session.loggedin}));
 
 // TODO: Handle GET request from profile page: if already filled out display current data, can update information if they want, otherwise display form
 app.get('/profile', (req, res) => {
@@ -133,8 +121,10 @@ app.post('/profile', function(req,res) {
   }
 });
 
+//Handle POST requests from the logout page
 app.post('/logout', (req, res) => {
-  req.session.destroy((err) => console.log(err))
+  //Clear the session cookies
+  req.session.destroy((err) => console.log(err));
 })
 
 // Serve static React files

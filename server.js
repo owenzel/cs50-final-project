@@ -30,11 +30,6 @@ app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'front-end/build')));
 
-// Serve static React files
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname + '/front-end/build/index.html'))
-})
-
 // Handle POST request from register page; insert data into users table
 //TODO: Standardize the format to match that of login
 app.post('/register', (req, res) => {
@@ -103,6 +98,19 @@ app.post('/login', (req, res) => {
 app.post('/loggedIn', (req, res) => res.send({loggedIn: req.session.loggedin}));
 
 // TODO: Handle GET request from profile page: if already filled out display current data, can update information if they want, otherwise display form
+app.get('/profile', (req, res) => {
+  client.query("SELECT * FROM people WHERE user_id = $1", [req.session.user_id])
+  .then(result => {
+    if (result.rows.length > 0) {
+      // User has already inputted profile information, display it on the page
+      res.send(JSON.stringify(result.rows[0]));
+    } else {
+      res.send(JSON.stringify(''));
+    }
+  })
+  .catch(err => console.log(err.stack))
+})
+
 
 // Handle POST request from profile page; insert data into people table
 app.post('/profile', function(req,res) {
@@ -119,7 +127,7 @@ app.post('/profile', function(req,res) {
     client.query(str, values)
     .catch(err => {
       console.log(err.stack);
-      res.redirect('/dashboard');
+      res.redirect('/');
     })
     .then(() => client.end())
   }
@@ -127,6 +135,11 @@ app.post('/profile', function(req,res) {
 
 app.post('/logout', (req, res) => {
   req.session.destroy((err) => console.log(err))
+})
+
+// Serve static React files
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname + '/front-end/build/index.html'))
 })
 
 //Hash function -- credit: https://gist.github.com/eplawless/52813b1d8ad9af510d85

@@ -7,7 +7,7 @@ export default function Profile(props){
     const orgRef = useRef();
     const addressRef = useRef();
 
-    // Send GET request upon loaded the page
+    // Send GET request upon loading the page
     useEffect(() => {
         Axios.get('/profile')
             .then((response) => {

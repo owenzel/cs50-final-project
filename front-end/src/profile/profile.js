@@ -7,14 +7,17 @@ export default function Profile(props){
     const orgRef = useRef();
     const addressRef = useRef();
 
+    const orgRefDisplay = useRef();
+    const addressRefDisplay = useRef();
+
     // Send GET request upon loading the page
     useEffect(() => {
         Axios.get('/profile')
             .then((response) => {
                 // If the user had previously filled in the form, then we display that information
                 if (response.data) {
-                    orgRef.current.value = response.data.organization
-                    addressRef.current.value = response.data.address
+                    orgRefDisplay.current.value = response.data.organization
+                    addressRefDisplay.current.value = response.data.address
                 }
             })
             .catch(error => {
@@ -23,9 +26,10 @@ export default function Profile(props){
     });
 
     function handleSubmit(event) {
-        // If the organization field is filledc out, POST the data
+        // If the organization field is filled out, POST the data
         event.preventDefault();
 
+        // TODO: can't fill in the same info into the form again
         Axios.post('/profile', {
             organization: orgRef.current.value,
             address: addressRef.current.value,
@@ -49,9 +53,27 @@ export default function Profile(props){
                             <Form.Control type="text" ref={orgRef} required ></Form.Control>
                         </Form.Group>
                         <Form.Group>
+                            <Form.Label>We currently have on record that you are affiliated with the following organization:</Form.Label>
+                            <Form.Control type="text" ref={orgRefDisplay} readOnly /> 
+                        </Form.Group>
+
+                        <Form.Group>
                             <Form.Label>Enter your address (optional)</Form.Label>
                             <Form.Control type="text" placeholder="XXXX Street Name, City, State ZIP" ref={addressRef} ></Form.Control>
                         </Form.Group>
+                        <Form.Group>
+                            <Form.Label>We currently have on record that your address is:</Form.Label>
+                            <Form.Control type="text" ref={addressRefDisplay} readOnly /> 
+                        </Form.Group>
+
+                        {/* TODO: need to store interests */}
+                        <Form.Label>Please indicate your interests below.</Form.Label>
+                        <Form.Group>
+                            <Form.Check inline label="math" type="checkbox"></Form.Check>
+                            <Form.Check inline label="sleep" type="checkbox"></Form.Check>
+                            <Form.Check inline label="food" type="checkbox"></Form.Check>
+                        </Form.Group>
+
                         <Button type="submit">Update Profile</Button>
                     </Form>
                 </Col>

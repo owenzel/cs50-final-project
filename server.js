@@ -9,6 +9,7 @@ const app = express();
 //Connecting to database
 const { Client } = require('pg');
 const e = require('express');
+const { default: Matching } = require('./matching');
 
 const client = new Client({
     user: 'ldqkazfnoxapti',
@@ -23,6 +24,22 @@ const client = new Client({
 
 //Connect to the database
 client.connect();
+
+
+var date = new Date();
+var d = 6 - date.getDay();
+var h = 24 - date.getHours();
+
+
+import {Matching} from './matching.js';
+if (d == 0 && h == 0)
+{
+  // Call matching algorithm
+  client.query("SELECT user_id FROM people");
+  users = result.rows;
+  matches = Matching(users);
+  // Write matches into SQL tables
+}
 
 // Middleware
 app.use(session({

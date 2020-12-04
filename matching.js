@@ -18,7 +18,7 @@ function shuffle(array) {
     return array;
 }
 
-export default function Matching(users){
+function Matching(users){
 
     this.users = users;
     users = shuffle(users);
@@ -33,3 +33,5 @@ export default function Matching(users){
 
     return matches;
 }
+
+module.exports = Matching;

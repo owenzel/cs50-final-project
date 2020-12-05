@@ -26,15 +26,24 @@ client.connect();
 var date = new Date();
 var d = 6 - date.getDay();
 var h = 24 - date.getHours();
+var matches;
 
 const Matching = require('./matching.js');
-if (d == 0 && h == 0)
-{
-  // Call matching algorithm
-  client.query("SELECT user_id FROM people");
-  users = result.rows;
-  matches = Matching(users);
-  // Write matches into SQL tables
+
+if (d == 0 && h == 0) {
+  // Match everyone in the people table, matches stored as object
+  client.query("SELECT person_id FROM people;")
+  .then(result => {
+    matches = Matching(result.rows);
+
+    // Insert matches into matches table
+    for (var i = 0; i < matches.length; i++) {
+      client.query("INSERT INTO matches(person1_id, person2_id) VALUES($1, $2);", [matches[i][0].person_id, matches[i][1].person_id])
+      .catch(err => { console.log(err.stack); })
+    }
+
+  })
+  .catch(err => { console.log(err.stack); })
 }
 
 // Middleware
@@ -98,12 +107,42 @@ app.post('/login', (req, res) => {
   }
 })
 
-// TODO: Handle GET request from profile page: if already filled out display current data, can update information if they want, otherwise display form
+// Display matches in dashboard
+app.get('/dashboard', (req, res) => {
+  client.query("SELECT * FROM matches WHERE person1_id = $1 OR person2_id = $1", [req.session.person_id])
+  .then(result => {
+    if (result.rows.length > 0) {
+      // User has been matched, return match on the dashboard
+      var temp_id;
+      if (result.rows[0].person1_id == req.session.person_id) {
+        temp_id = result.rows[0].person2_id
+      }
+      else {
+        temp_id = result.rows[0].person1_id
+      }
+      client.query("SELECT name FROM users WHERE user_id IN (SELECT user_id FROM people WHERE person_id = $1)", [temp_id])
+        .then(result => {
+          if (result.rows.length > 0) {
+            res.send(JSON.stringify(result.rows[0]))
+          }
+        })
+        .catch(err => console.log(err.stack))
+    } 
+    else {
+      res.send(JSON.stringify(''));
+    }
+  })
+  .catch(err => console.log(err.stack))
+})
+
+// TODO: Can update information if they want
 app.get('/profile', (req, res) => {
   client.query("SELECT * FROM people WHERE user_id = $1", [req.session.user_id])
   .then(result => {
     if (result.rows.length > 0) {
       // User has already inputted profile information, display it on the page
+      req.session.person_id = result.rows[0].person_id;
+      
       res.send(JSON.stringify(result.rows[0]));
     } else {
       res.send(JSON.stringify(''));

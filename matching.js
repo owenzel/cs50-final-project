@@ -20,13 +20,14 @@ function shuffle(array) {
 
 function Matching(users){
 
-    this.users = users;
+    
+    // this.users = users;
     users = shuffle(users);
 
     let matches = [];
 
     // ASSUMING EVEN # of USERS -- update edge case later for odd
-    for (i = 0; i < matches.length; i += 2)
+    for (i = 0; i < users.length; i += 2)
     {
         matches.push([users[i], users[i + 1]]);
     }

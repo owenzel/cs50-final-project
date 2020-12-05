@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Row, Container } from 'react-bootstrap';
+import Axios from "axios";
 
 
 
@@ -8,6 +9,22 @@ export default function Dashboard(){
     var date = new Date();
     var d = 6 - date.getDay();
     var h = 24 - date.getHours();
+
+    const nameRef = useRef();
+    
+    // Send GET request upon loading the page
+    useEffect(() => {
+        // TODO: Sometimes only loads the second time, need to fix
+        Axios.get('/dashboard')
+            .then((response) => {
+                if (response.data) {
+                    nameRef.current.value = response.data.name;
+                }
+            })
+            .catch(error => {
+                console.log(error.response)
+            });
+    });
 
     return (
         <>
@@ -21,7 +38,6 @@ export default function Dashboard(){
             <h4>Your previous matches: </h4>
         </Container>
 
-        
         </>
     )
 }

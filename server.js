@@ -130,7 +130,7 @@ app.post('/profile', function(req,res) {
       console.log(err.stack);
       res.redirect('/');
     })
-    .then(() => client.end())
+    //.then(() => client.end())
   }
 });
 

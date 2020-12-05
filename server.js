@@ -135,42 +135,55 @@ app.get('/dashboard', (req, res) => {
   .catch(err => console.log(err.stack))
 })
 
-// TODO: Can update information if they want
 app.get('/profile', (req, res) => {
-  client.query("SELECT * FROM people WHERE user_id = $1", [req.session.user_id])
-  .then(result => {
-    if (result.rows.length > 0) {
-      // User has already inputted profile information, display it on the page
-      req.session.person_id = result.rows[0].person_id;
+  if (req.query.id) {
+    client.query("SELECT * FROM people WHERE user_id = $1", [req.session.user_id])
+    .then(result => {
+      if (result.rows.length > 0) {
+        // User has already inputted profile information, display it on the page
+        req.session.person_id = result.rows[0].person_id;
       
-      res.send(JSON.stringify(result.rows[0]));
-    } else {
-      res.send(JSON.stringify(''));
-    }
-  })
-  .catch(err => console.log(err.stack))
+        res.send(JSON.stringify(result.rows[0]));
+      } else {
+        res.send(JSON.stringify(''));
+      }
+    })
+    .catch(err => console.log(err.stack))
+  }
+  else {
+    res.sendFile(path.join(__dirname + '/front-end/build/index.html'))
+  }
 })
 
-
-// Handle POST request from profile page; insert data into people table
-app.post('/profile', function(req,res) {
-  
-  // console.log(req.body);
+app.post('/profile', function(req, res) {
   const organization = req.body.organization;
   const address = req.body.address;
 
-  if (organization) {
-    const str = "INSERT INTO people(organization, address, user_id) VALUES ($1, $2, $3)"
-    const values = [organization, address, req.session.user_id]
+  // First check if we are updating or inserting
+  client.query("SELECT * FROM people WHERE user_id = $1", [req.session.user_id])
+  .then(result => {
+    // If the user is already in the people table, then we update
+    // TODO: currently can only update entire row, and not individual parts
+    if (result.rows.length > 0) {
+      client.query("UPDATE people SET organization=$1,address=$2 WHERE user_id=$3", [organization, address, req.session.user_id])
+      .catch(err => {
+        console.log(err.stack);
+      })
+    }
+    // Otherwise, insert a new row
+    else {
+      const str = "INSERT INTO people(organization, address, user_id) VALUES ($1, $2, $3)"
+      const values = [organization, address, req.session.user_id]
 
-    // client.connect();
-    client.query(str, values)
-    .catch(err => {
-      console.log(err.stack);
-      res.redirect('/');
-    })
-    //.then(() => client.end())
-  }
+      // client.connect();
+      client.query(str, values)
+      .catch(err => {
+        console.log(err.stack);
+      })
+    }
+  })
+  .catch(err => console.log(err.stack))
+  //.then(() => client.end())
 });
 
 //Handle POST requests from the logout page

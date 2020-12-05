@@ -12,24 +12,25 @@ export default function Profile(props){
 
     // Send GET request upon loading the page
     useEffect(() => {
-        Axios.get('/profile')
-            .then((response) => {
-                // If the user had previously filled in the form, then we display that information
-                if (response.data) {
-                    orgRefDisplay.current.value = response.data.organization
-                    addressRefDisplay.current.value = response.data.address
-                }
-            })
-            .catch(error => {
-                console.log(error.response)
-            });
+        Axios.get('/profile', {
+            params: {
+                id: 1
+            }
+        }).then((response) => {
+            // If the user had previously filled in the form, then we display that information
+            if (response.data) {
+                orgRefDisplay.current.value = response.data.organization
+                addressRefDisplay.current.value = response.data.address
+            }
+        }).catch(error => {
+            console.log(error.response)
+        });
     });
 
     function handleSubmit(event) {
-        // If the organization field is filled out, POST the data
+        // If the form field is filled out, POST the data
         event.preventDefault();
 
-        // TODO: can't fill in the same info into the form again
         Axios.post('/profile', {
             organization: orgRef.current.value,
             address: addressRef.current.value,
@@ -59,7 +60,7 @@ export default function Profile(props){
 
                         <Form.Group>
                             <Form.Label>Enter your address (optional)</Form.Label>
-                            <Form.Control type="text" placeholder="XXXX Street Name, City, State ZIP" ref={addressRef} ></Form.Control>
+                            <Form.Control type="text" placeholder="XXXX Street Name, City, State ZIP" ref={addressRef} required></Form.Control>
                         </Form.Group>
                         <Form.Group>
                             <Form.Label>We currently have on record that your address is:</Form.Label>

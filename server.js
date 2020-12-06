@@ -162,21 +162,24 @@ app.post('/profile', function(req, res) {
   // First check if we are updating or inserting
   client.query("SELECT * FROM people WHERE user_id = $1", [req.session.user_id])
   .then(result => {
-    // If the user is already in the people table, then we update
+    // If the user is already in the people table, then update
     // TODO: currently can only update entire row, and not individual parts
     if (result.rows.length > 0) {
-      client.query("UPDATE people SET organization=$1,address=$2 WHERE user_id=$3", [organization, address, req.session.user_id])
+      client.query("UPDATE people SET organization=$1,address=$2 WHERE user_id=$3 RETURNING *", [organization, address, req.session.user_id])
+      .then(result => {
+        res.send(JSON.stringify(result.rows[0]));
+      })
       .catch(err => {
         console.log(err.stack);
       })
     }
     // Otherwise, insert a new row
     else {
-      const str = "INSERT INTO people(organization, address, user_id) VALUES ($1, $2, $3)"
-      const values = [organization, address, req.session.user_id]
-
       // client.connect();
-      client.query(str, values)
+      client.query("INSERT INTO people(organization, address, user_id) VALUES ($1, $2, $3) RETURNING *", [organization, address, req.session.user_id])
+      .then(result => {
+        res.send(JSON.stringify(result.rows[0]));
+      })
       .catch(err => {
         console.log(err.stack);
       })

@@ -35,7 +35,12 @@ export default function Profile(props){
             organization: orgRef.current.value,
             address: addressRef.current.value,
         }).then((response) => {
-            console.log(response)
+            // Design?
+            orgRefDisplay.current.value = response.data.organization
+            addressRefDisplay.current.value = response.data.address
+
+            orgRef.current.value = ''
+            addressRef.current.value = ''
         }).catch(error => {
             console.log(error.response)
         });
@@ -59,7 +64,7 @@ export default function Profile(props){
                         </Form.Group>
 
                         <Form.Group>
-                            <Form.Label>Enter your address (optional)</Form.Label>
+                            <Form.Label>Enter your address</Form.Label>
                             <Form.Control type="text" placeholder="XXXX Street Name, City, State ZIP" ref={addressRef} required></Form.Control>
                         </Form.Group>
                         <Form.Group>

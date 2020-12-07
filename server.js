@@ -1,9 +1,12 @@
+require('dotenv').config()
 const express = require('express'); // a framework for better handling http requests & responses
 const session = require('express-session');
 const path = require('path');
 //const { body, validationResult } = require('express-validator'); //set of middlewares that will help clean up user input
 const bodyParser = require('body-parser');
-const jwt = require('jsonwebtoken');
+//const jwt = require('jsonwebtoken');
+const nodemailer = require("nodemailer");
+const { v4: uuidV4 } = require('uuid'); //for generating random ids (for the video chat urls)
 const app = express();
 
 //Connecting to database
@@ -20,8 +23,16 @@ const client = new Client({
     }
 });
 
-//Connect to the database
 client.connect();
+
+//Configure Gmail SMTP transporter on nodemailer
+const transporter = nodemailer.createTransport({
+  service: "Gmail",
+  auth: {
+    user: process.env.EMAIL,
+    pass: process.env.PASSWORD
+  }
+});
 
 var date = new Date();
 var d = 6 - date.getDay();
@@ -36,12 +47,31 @@ if (d == 0 && h == 0) {
   .then(result => {
     matches = Matching(result.rows);
 
-    // Insert matches into matches table
+    //Loop through all of the users
     for (var i = 0; i < matches.length; i++) {
       client.query("INSERT INTO matches(person1_id, person2_id) VALUES($1, $2);", [matches[i][0].person_id, matches[i][1].person_id])
       .catch(err => { console.log(err.stack); })
-    }
 
+      //Generate a random video chat meeting link:
+      // const meetingLink = `https://cs50-final-project-video-chat.herokuapp.com/${uuidV4()}`;
+
+      // //Create an email to send to our admin address and the matches
+      // const mailContent = {
+      //   from: process.env.EMAIL,
+      //   to: `${process.env.EMAIL}, ${matches[i][0].email}, ${matches[i][1].email}`,
+      //   subject: 'Your VirtuConnect match!',
+      //   text: `Congratulations, ${matches[i][0].name} and ${matches[i][1].name}! You two have been matched on VirtuConnect! Please reply all to this email to schedule a meeting with your new friend. You can use this link to video chat at your chosen time: ${meetingLink}.`
+      // };
+
+      // //Send the email
+      // transporter.sendMail(mailContent, (err, data) => {
+      //   if (err) {
+      //     console.log(err);
+      //   } else {
+      //     console.log('Email sent');
+      //   }
+      // });
+    }
   })
   .catch(err => { console.log(err.stack); })
 }
@@ -55,6 +85,13 @@ app.use(session({
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'front-end/build')));
+
+app.get
+
+// Serve static React files
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname + '/front-end/build/index.html'))
+})
 
 // Handle POST request from register page; insert data into users table
 //TODO: Add error check to make sure user doesn't already have account
@@ -193,11 +230,6 @@ app.post('/profile', function(req, res) {
 app.post('/logout', (req, res) => {
   //Clear the session cookies
   req.session.destroy((err) => console.log(err));
-})
-
-// Serve static React files
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname + '/front-end/build/index.html'))
 })
 
 //Hash function -- credit: https://gist.github.com/eplawless/52813b1d8ad9af510d85

@@ -10,9 +10,12 @@ export default function Profile(props){
     const orgRefDisplay = useRef();
     const addressRefDisplay = useRef();
 
+    const dayRef = useRef();
+
     // Send GET request upon loading the page
     useEffect(() => {
-        Axios.get('/profile', {
+        // Axios.get('/profile', {
+        Axios.post('/profile', {
             params: {
                 id: 1
             }
@@ -30,12 +33,16 @@ export default function Profile(props){
     function handleSubmit(event) {
         // If the form field is filled out, POST the data
         event.preventDefault();
+        console.log(dayRef.current.value);
 
         Axios.post('/profile', {
             organization: orgRef.current.value,
             address: addressRef.current.value,
+            day: parseInt(dayRef.current.value),
+            params: {
+                id: 2
+            }
         }).then((response) => {
-            // Design?
             orgRefDisplay.current.value = response.data.organization
             addressRefDisplay.current.value = response.data.address
 
@@ -70,6 +77,19 @@ export default function Profile(props){
                         <Form.Group>
                             <Form.Label>We currently have on record that your address is:</Form.Label>
                             <Form.Control type="text" ref={addressRefDisplay} readOnly /> 
+                        </Form.Group>
+
+                        <Form.Group>
+                            <Form.Label>Please indicate your preferred meeting time below.</Form.Label>
+                            <Form.Control as="select" ref={dayRef} required>
+                                <option value="1">Monday</option>
+                                <option value="2">Tuesday</option>
+                                <option value="3">Wednesday</option>
+                                <option value="4">Thursday</option>
+                                <option value="5">Friday</option>
+                                <option value="6">Saturday</option>
+                                <option value="7">Sunday</option>
+                            </Form.Control>
                         </Form.Group>
 
                         {/* TODO: need to store interests */}

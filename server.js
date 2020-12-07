@@ -30,21 +30,25 @@ var matches;
 
 const Matching = require('./matching.js');
 
-if (d == 0 && h == 0) {
-  // Match everyone in the people table, matches stored as object
-  client.query("SELECT person_id FROM people;")
-  .then(result => {
-    matches = Matching(result.rows);
-
-    // Insert matches into matches table
-    for (var i = 0; i < matches.length; i++) {
-      client.query("INSERT INTO matches(person1_id, person2_id) VALUES($1, $2);", [matches[i][0].person_id, matches[i][1].person_id])
-      .catch(err => { console.log(err.stack); })
-    }
-
-  })
-  .catch(err => { console.log(err.stack); })
+function updateMatches() {
+  if (d == 0 && h == 0) {
+    // Re-match everyone in the people table, matches stored as object
+    client.query("truncate matches")
+    .catch(err => {console.log(err.stack); })
+    console.log('done')
+    client.query("SELECT person_id FROM people;")
+    .then(result => {
+      matches = Matching(result.rows);
+      // Insert matches into matches table
+      for (var i = 0; i < matches.length; i++) {
+        client.query("INSERT INTO matches(person1_id, person2_id) VALUES($1, $2);", [matches[i][0].person_id, matches[i][1].person_id])
+        .catch(err => { console.log(err.stack); })
+      }
+    })
+    .catch(err => { console.log(err.stack); })
+  }
 }
+setInterval(updateMatches, 604800000);
 
 // Middleware
 app.use(session({
@@ -135,8 +139,34 @@ app.get('/dashboard', (req, res) => {
   .catch(err => console.log(err.stack))
 })
 
-app.get('/profile', (req, res) => {
-  if (req.query.id) {
+// app.get('/profile', (req, res) => {
+//   if (req.query.id) {
+//     client.query("SELECT * FROM people WHERE user_id = $1", [req.session.user_id])
+//     .then(result => {
+//       if (result.rows.length > 0) {
+//         // User has already inputted profile information, display it on the page
+//         req.session.person_id = result.rows[0].person_id;
+      
+//         res.send(JSON.stringify(result.rows[0]));
+//       } else {
+//         res.send(JSON.stringify(''));
+//       }
+//     })
+//     .catch(err => console.log(err.stack))
+//   }
+//   else {
+//     // res.sendFile(path.join(__dirname + '/front-end/build/index.html'))
+//     // res.redirect('https://google.com')
+//     res.redirect('/profile')
+//   }
+// })
+
+app.post('/profile', function(req, res) {
+  // The GET request from before 
+  // console.log(req.body)
+  // console.log(req.query)
+  if (req.body.params.id == 1) {
+    // console.log('hi')
     client.query("SELECT * FROM people WHERE user_id = $1", [req.session.user_id])
     .then(result => {
       if (result.rows.length > 0) {
@@ -150,42 +180,70 @@ app.get('/profile', (req, res) => {
     })
     .catch(err => console.log(err.stack))
   }
-  else {
-    res.sendFile(path.join(__dirname + '/front-end/build/index.html'))
-  }
-})
-
-app.post('/profile', function(req, res) {
-  const organization = req.body.organization;
-  const address = req.body.address;
-
-  // First check if we are updating or inserting
-  client.query("SELECT * FROM people WHERE user_id = $1", [req.session.user_id])
-  .then(result => {
-    // If the user is already in the people table, then update
-    // TODO: currently can only update entire row, and not individual parts
-    if (result.rows.length > 0) {
-      client.query("UPDATE people SET organization=$1,address=$2 WHERE user_id=$3 RETURNING *", [organization, address, req.session.user_id])
-      .then(result => {
-        res.send(JSON.stringify(result.rows[0]));
-      })
-      .catch(err => {
-        console.log(err.stack);
-      })
-    }
-    // Otherwise, insert a new row
-    else {
-      // client.connect();
-      client.query("INSERT INTO people(organization, address, user_id) VALUES ($1, $2, $3) RETURNING *", [organization, address, req.session.user_id])
-      .then(result => {
-        res.send(JSON.stringify(result.rows[0]));
-      })
-      .catch(err => {
-        console.log(err.stack);
-      })
-    }
-  })
+  // The POST request from before
+  else if (req.body.params.id == 2){
+    const organization = req.body.organization;
+    const address = req.body.address;
+    const day = req.body.day;
+    // First check if we are updating or inserting
+    client.query("SELECT * FROM people WHERE user_id = $1", [req.session.user_id])
+    .then(result => {
+      // If the user is already in the people table, then update
+      // Currently can only update entire row, and not individual parts
+      if (result.rows.length > 0) {
+        client.query("UPDATE people SET organization=$1,address=$2 WHERE user_id=$3 RETURNING *", [organization, address, req.session.user_id])
+        .then(result => {
+          res.send(JSON.stringify(result.rows[0]));
+        })
+        .catch(err => {
+          console.log(err.stack);
+        })
+        client.query("UPDATE scheduling_preferences SET day_id=$1 WHERE person_id=$2", [day, req.session.person_id])
+        .catch(err => {console.log(err.stack); })
+      }
+      // Otherwise, insert a new row
+      else {
+        // client.connect();
+        client.query("INSERT INTO people(organization, address, user_id) VALUES ($1, $2, $3) RETURNING *", [organization, address, req.session.user_id])
+        .then(result => {
+          res.send(JSON.stringify(result.rows[0]));
+        })
+        .catch(err => {
+          console.log(err.stack);
+        })
+        client.query("INSERT INTO scheduling_preferences(person_id, day_id) VALUES ($1, $2)", [req.session.person_id, day])
+        .catch(err => {console.log(err.stack); })
+      }
+    })
   .catch(err => console.log(err.stack))
+  }
+  // // First check if we are updating or inserting
+  // client.query("SELECT * FROM people WHERE user_id = $1", [req.session.user_id])
+  // .then(result => {
+  //   // If the user is already in the people table, then update
+  //   // Currently can only update entire row, and not individual parts
+  //   if (result.rows.length > 0) {
+  //     client.query("UPDATE people SET organization=$1,address=$2 WHERE user_id=$3 RETURNING *", [organization, address, req.session.user_id])
+  //     .then(result => {
+  //       res.send(JSON.stringify(result.rows[0]));
+  //     })
+  //     .catch(err => {
+  //       console.log(err.stack);
+  //     })
+  //   }
+  //   // Otherwise, insert a new row
+  //   else {
+  //     // client.connect();
+  //     client.query("INSERT INTO people(organization, address, user_id) VALUES ($1, $2, $3) RETURNING *", [organization, address, req.session.user_id])
+  //     .then(result => {
+  //       res.send(JSON.stringify(result.rows[0]));
+  //     })
+  //     .catch(err => {
+  //       console.log(err.stack);
+  //     })
+  //   }
+  // })
+  // .catch(err => console.log(err.stack))
   //.then(() => client.end())
 });
 

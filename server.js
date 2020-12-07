@@ -1,9 +1,12 @@
+require('dotenv').config()
 const express = require('express'); // a framework for better handling http requests & responses
 const session = require('express-session');
 const path = require('path');
 //const { body, validationResult } = require('express-validator'); //set of middlewares that will help clean up user input
 const bodyParser = require('body-parser');
-const jwt = require('jsonwebtoken');
+//const jwt = require('jsonwebtoken');
+const nodemailer = require("nodemailer");
+const { v4: uuidV4 } = require('uuid'); //for generating random ids (for the video chat urls)
 const app = express();
 
 //Connecting to database
@@ -20,8 +23,16 @@ const client = new Client({
     }
 });
 
-//Connect to the database
 client.connect();
+
+//Configure Gmail SMTP transporter on nodemailer
+const transporter = nodemailer.createTransport({
+  service: "Gmail",
+  auth: {
+    user: process.env.EMAIL,
+    pass: process.env.PASSWORD
+  }
+});
 
 var date = new Date();
 var d = 6 - date.getDay();
@@ -59,6 +70,13 @@ app.use(session({
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'front-end/build')));
+
+app.get
+
+// Serve static React files
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname + '/front-end/build/index.html'))
+})
 
 // Handle POST request from register page; insert data into users table
 //TODO: Add error check to make sure user doesn't already have account
@@ -251,11 +269,6 @@ app.post('/profile', function(req, res) {
 app.post('/logout', (req, res) => {
   //Clear the session cookies
   req.session.destroy((err) => console.log(err));
-})
-
-// Serve static React files
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname + '/front-end/build/index.html'))
 })
 
 //Hash function -- credit: https://gist.github.com/eplawless/52813b1d8ad9af510d85

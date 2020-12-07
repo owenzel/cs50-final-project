@@ -52,7 +52,7 @@ export default function Home() {
                     <InfoCard
                         imgSrc={mouseClick}
                         title="4. Log in and Visit the Dashboard"
-                        body="Log into this website, and visit your dashboard to learn more about your new friend."
+                        body="If you lost the email, you can always log into this website and visit your dashboard to see your latest match."
                         buttonText="Log In"
                         buttonLink="/login"
                     />
@@ -61,7 +61,7 @@ export default function Home() {
                     <InfoCard
                         imgSrc={schedule}
                         title="5. Schedule an Online Meet-Up"
-                        body="Once you've been matched, you're ready to schedule an online get-to-know-you session. Click the 'Schedule' button on the dashboard to get the process started."
+                        body="Once you've been matched, you're ready to schedule an online get-to-know-you session. Email your new friend, and use the link we sent you to video chat."
                         buttonText="Dashboard"
                         buttonLink="/dashboard"
                     />

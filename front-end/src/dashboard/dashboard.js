@@ -2,8 +2,6 @@ import React, { useEffect, useRef } from 'react';
 import { Row, Container } from 'react-bootstrap';
 import Axios from "axios";
 
-
-
 export default function Dashboard(){
 
     var date = new Date();
@@ -11,6 +9,7 @@ export default function Dashboard(){
     var h = 24 - date.getHours();
 
     const nameRef = useRef();
+    var matchInfo;
     
     // Send GET request upon loading the page
     useEffect(() => {
@@ -19,12 +18,16 @@ export default function Dashboard(){
             .then((response) => {
                 if (response.data) {
                     nameRef.current.value = response.data.name;
+                    matchInfo = response.data;
+                    console.log("MATCH1: " + response.data.name)
                 }
             })
             .catch(error => {
                 console.log(error.response)
             });
     });
+
+    // console.log("MATCH2: " + match)
 
     return (
         <>
@@ -35,7 +38,8 @@ export default function Dashboard(){
         </Container>
 
         <Container className="text-center">
-            <h4>Your previous matches: </h4>
+            <h4>Your match: {matchInfo.name} </h4>
+            <h4>You can contact them at {matchInfo.email} </h4>
         </Container>
 
         </>

@@ -149,7 +149,7 @@ app.post('/login', (req, res) => {
 })
 
 // Display matches in dashboard
-app.get('/dashboard', (req, res) => {
+app.post('/dashboard', (req, res) => {
   client.query("SELECT * FROM matches WHERE person1_id = $1 OR person2_id = $1", [req.session.person_id])
   .then(result => {
     if (result.rows.length > 0) {

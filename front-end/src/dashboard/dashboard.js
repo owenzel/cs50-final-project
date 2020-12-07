@@ -12,22 +12,19 @@ export default function Dashboard(){
     var matchInfo;
     
     // Send GET request upon loading the page
-    useEffect(() => {
+        console.log('use effect')
         // TODO: Sometimes only loads the second time, need to fix
-        Axios.get('/dashboard')
-            .then((response) => {
-                if (response.data) {
-                    nameRef.current.value = response.data.name;
-                    matchInfo = response.data;
-                    console.log("MATCH1: " + response.data.name)
-                }
-            })
-            .catch(error => {
-                console.log(error.response)
-            });
-    });
-
-    // console.log("MATCH2: " + match)
+        Axios.post('/dashboard', {})
+        .then((response) => {
+            if (response.data) {
+                nameRef.current.value = response.data.name;
+                matchInfo = response.data;
+                console.log("MATCH1: " + response.data.name)
+            }
+        })
+        .catch(error => {
+            console.log(error.response)
+        });
 
     return (
         <>

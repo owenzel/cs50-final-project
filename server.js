@@ -53,24 +53,24 @@ if (d == 0 && h == 0) {
       .catch(err => { console.log(err.stack); })
 
       //Generate a random video chat meeting link:
-      // const meetingLink = `https://cs50-final-project-video-chat.herokuapp.com/${uuidV4()}`;
+      const meetingLink = `https://cs50-final-project-video-chat.herokuapp.com/${uuidV4()}`;
 
-      // //Create an email to send to our admin address and the matches
-      // const mailContent = {
-      //   from: process.env.EMAIL,
-      //   to: `${process.env.EMAIL}, ${matches[i][0].email}, ${matches[i][1].email}`,
-      //   subject: 'Your VirtuConnect match!',
-      //   text: `Congratulations, ${matches[i][0].name} and ${matches[i][1].name}! You two have been matched on VirtuConnect! Please reply all to this email to schedule a meeting with your new friend. You can use this link to video chat at your chosen time: ${meetingLink}.`
-      // };
+      //Create an email to send to our admin address and the matches
+      const mailContent = {
+        from: process.env.EMAIL,
+        to: `${process.env.EMAIL}, ${matches[i][0].email}, ${matches[i][1].email}`,
+        subject: 'Your VirtuConnect match!',
+        text: `Congratulations, ${matches[i][0].name} and ${matches[i][1].name}! You two have been matched on VirtuConnect! Please reply all to this email to schedule a meeting with your new friend. You can use this link to video chat at your chosen time: ${meetingLink}.`
+      };
 
-      // //Send the email
-      // transporter.sendMail(mailContent, (err, data) => {
-      //   if (err) {
-      //     console.log(err);
-      //   } else {
-      //     console.log('Email sent');
-      //   }
-      // });
+      //Send the email
+      transporter.sendMail(mailContent, (err, data) => {
+        if (err) {
+          console.log(err);
+        } else {
+          console.log('Email sent');
+        }
+      });
     }
   })
   .catch(err => { console.log(err.stack); })

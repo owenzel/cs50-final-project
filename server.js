@@ -357,7 +357,9 @@ app.post('/profile', function(req, res) {
 //Handle POST requests from the logout page
 app.post('/logout', (req, res) => {
   //Clear the session cookies
-  req.session.destroy((err) => console.log(err));
+  req.session.destroy((err) => {
+    console.log(err);
+  });
 })
 
 //Hash function for hashing the passwords -- credit: https://gist.github.com/eplawless/52813b1d8ad9af510d85

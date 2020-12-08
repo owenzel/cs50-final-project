@@ -1,10 +1,13 @@
-import React, { useRef } from 'react';
-import { Row, Col, Container, Form, Button } from 'react-bootstrap';
+import React, { useRef, useState } from 'react';
+import { Row, Col, Container, Form, Button, Alert } from 'react-bootstrap';
+
 import Axios from "axios";
 
 export default function Login(props){
     const emailRef = useRef();
     const passwordRef = useRef();
+
+    const [alert, setAlert] = useState(<></>)
 
     function handleSubmit(e) {
         e.preventDefault();
@@ -17,7 +20,11 @@ export default function Login(props){
             // If there was an error, alert the user
             if (response.data.error) {
                 e.preventDefault();
-                alert(response.data.error);
+                setAlert(
+                    <Alert variant="danger">
+                        <Alert.Heading>{response.data.error}</Alert.Heading>
+                    </Alert>
+                );
             }
 
             // If there were no errors, update the cookies and the state to reflect the user's login
@@ -33,12 +40,19 @@ export default function Login(props){
         })
         .catch(error => {
             console.log(error);
-            alert("There was an error. Please refresh and try again.");
+            setAlert(
+                <Alert variant="danger">
+                    <Alert.Heading>There was an error. Please refresh and try again.</Alert.Heading>
+                </Alert>
+            );
         });
     }
 
     return (
         <Container className="mt-5">
+            <Row>
+                {alert}
+            </Row>
             <Row>
                 <Col className="mb-3"><h1>Log In</h1></Col>
             </Row>

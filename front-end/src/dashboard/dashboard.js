@@ -11,8 +11,6 @@ export default function Dashboard(){
     const nameRef = useRef();
     var matchInfo;
     
-    // Send GET request upon loading the page
-        console.log('use effect')
         // TODO: Sometimes only loads the second time, need to fix
         Axios.post('/dashboard', {})
         .then((response) => {

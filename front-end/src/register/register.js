@@ -1,5 +1,5 @@
-import React, { useRef } from 'react';
-import { Row, Col, Container, Form, Button } from 'react-bootstrap';
+import React, { useRef, useState } from 'react';
+import { Row, Col, Container, Form, Button, Alert } from 'react-bootstrap';
 import Axios from "axios";
 import './register.css';
 
@@ -9,12 +9,19 @@ export default function Register(props){
     const passwordRef = useRef();
     const confirmPasswordRef = useRef();
 
+    const [alert, setAlert] = useState(<></>)
+
     function handleSubmit(e) {
+        e.preventDefault();
+
         // If the passwords don't match, alert the users
         if (passwordRef.current.value !== confirmPasswordRef.current.value)
         {
-            e.preventDefault();
-            alert("Passwords must match!");
+            setAlert(
+                <Alert variant="danger">
+                    <Alert.Heading>Passwords must match!</Alert.Heading>
+                </Alert>
+            );
             return;
         }
 
@@ -26,22 +33,41 @@ export default function Register(props){
         }).then((response) => {
             // If there was an error, alert the user
             if (response.data.error) {
-                e.preventDefault();
-                alert(response.data.error);
+                setAlert(
+                    <Alert variant="danger">
+                        <Alert.Heading>{response.data.error}</Alert.Heading>
+                    </Alert>
+                );
             }
-            // If there were no errors, alert the user that they can now log in
+            // If there were no errors, alert the user that they can now log in and clear the input boxes
             else {
-                alert("You are registered! Now you can log in with your new account!");
+                setAlert(
+                    <Alert variant="success">
+                        <Alert.Heading>You are registered! Now you can log in with your new account!</Alert.Heading>
+                    </Alert>
+                );
+
+                nameRef.current.value = "";
+                emailRef.current.value = "";
+                passwordRef.current.value = "";
+                confirmPasswordRef.current.value = "";
             }
         })
         .catch(error => {
             console.log(error);
-            alert("There was an error. Please refresh and try again.");
+            setAlert(
+                <Alert variant="danger">
+                    <Alert.Heading>There was an error. Please refresh and try again.</Alert.Heading>
+                </Alert>
+            );
         });
     }
     
     return (
         <Container className="mt-5">
+            <Row>
+                {alert}
+            </Row>
             <Row>
                 <Col className="mb-3"><h1>Register</h1></Col>
             </Row>

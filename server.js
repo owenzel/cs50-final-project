@@ -1,19 +1,19 @@
-require('dotenv').config()
-const express = require('express'); // a framework for better handling http requests & responses
-const session = require('express-session');
-const Cookies = require('universal-cookie');
-const cookies = new Cookies();
-const path = require('path');
-//const { body, validationResult } = require('express-validator'); //set of middlewares that will help clean up user input
-const bodyParser = require('body-parser');
-//const jwt = require('jsonwebtoken');
-const nodemailer = require("nodemailer");
-const { v4: uuidV4 } = require('uuid'); //for generating random ids (for the video chat urls)
+// Imports
+require('dotenv').config();
+const express = require('express'); // Web development framework
+const session = require('express-session'); //Middleware for saving session data on the server-side
+const bodyParser = require('body-parser'); // Middleware for sanitizing requests
+const { body, validationResult } = require('express-validator'); // middleware for sanitizing user input
+const path = require('path'); // Module for working with file and directory paths
+const nodemailer = require("nodemailer"); // Library for sending emails
+const { v4: uuidV4 } = require('uuid'); // Library that helps with generating random ids (for the video chat urls)
+const { Client } = require('pg'); // Library for connecting to the PostgreSQL database and executing SQL commands
+const Matching = require('./matching.js'); // File we created with the matching algorithm
+
+// Create Express app
 const app = express();
 
-//Connecting to database
-const { Client } = require('pg');
-
+// Connect to database
 const client = new Client({
     user: 'ldqkazfnoxapti',
     host: 'ec2-18-210-90-1.compute-1.amazonaws.com',
@@ -27,7 +27,7 @@ const client = new Client({
 
 client.connect();
 
-//Configure Gmail SMTP transporter on nodemailer
+// Configure Gmail SMTP transporter on nodemailer
 const transporter = nodemailer.createTransport({
   service: "Gmail",
   auth: {
@@ -36,13 +36,11 @@ const transporter = nodemailer.createTransport({
   }
 });
 
+// Run the matching algorithm once a week:
 var date = new Date();
 var d = 6 - date.getDay();
 var h = 24 - date.getHours();
 var matches;
-
-const Matching = require('./matching.js');
-const e = require('express');
 
 function updateMatches() {
   if (d == 0 && h == 0) {
@@ -53,16 +51,16 @@ function updateMatches() {
     client.query("SELECT person_id FROM people;")
     .then(result => {
       matches = Matching(result.rows);
-      //Loop through all of the users
+      // Loop through all of the users
       for (var i = 0; i < matches.length; i++) {
         // Insert matches into matches table
         client.query("INSERT INTO matches(person1_id, person2_id) VALUES($1, $2);", [matches[i][0].person_id, matches[i][1].person_id])
         .catch(err => { console.log(err.stack); })
 
-        //Generate a random video chat meeting link:
+        // Generate a random video chat meeting link:
         const meetingLink = `https://cs50-final-project-video-chat.herokuapp.com/${uuidV4()}`;
 
-        //Create an email to send to our admin address and the matches
+        // Create an email to send to our admin address and the new match
         const mailContent = {
           from: process.env.EMAIL,
           to: `${process.env.EMAIL}, ${matches[i][0].email}, ${matches[i][1].email}`,
@@ -70,7 +68,7 @@ function updateMatches() {
           text: `Congratulations, ${matches[i][0].name} and ${matches[i][1].name}! You two have been matched on VirtuConnect! Please reply all to this email to schedule a meeting with your new friend. You can use this link to video chat at your chosen time: ${meetingLink}.`
         };
 
-        //Send the email
+        // Send the email to the admin email and the match
         transporter.sendMail(mailContent, (err, data) => {
           if (err) {
             console.log(err);
@@ -95,17 +93,18 @@ app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'front-end/build')));
 
-// Serve static React files
+// Handle GET requests to any route by serving static React files
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname + '/front-end/build/index.html'))
 })
 
 // Handle POST request from register page; insert data into users table
-//TODO: Add error check to make sure user doesn't already have account
 app.post('/register', (req, res) => {
   const name = req.body.name;
   const email = req.body.email;
   const password = req.body.password;
+
+  //If the user entered all required information, proceed with registering them
   if (name && email && password)
   {
     //Query databse to ensure user doesn't already have an account with the same email address
@@ -115,7 +114,9 @@ app.post('/register', (req, res) => {
       if (result.rows.length > 0) {
         console.log('duplicate email')
         res.send({accountAlreadyExists: true});
-      } else { //If the user doesn't already have an account, attempt to register them
+      } 
+      //If the user doesn't already have an account, attempt to register them
+      else {
         const hashedPassword = djb2_xor(password);
         client.query("INSERT INTO users(name, password, email, created_on, last_login) VALUES($1, $2, $3, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);", [name, hashedPassword, email])
         .then(result => {
@@ -130,8 +131,10 @@ app.post('/register', (req, res) => {
       }
     })
     .catch(err => console.log(err.stack))
-  } else {
-    res.status(400).send('Server error.');
+  }
+  //If the user didn't enter all required information, throw an error
+  else {
+    res.status(400).send('Must enter a valid name, email, and password');
   }
 })
 
@@ -139,19 +142,22 @@ app.post('/register', (req, res) => {
 app.post('/login', (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
+
+  //If the user entered all required information, proceed with attempting to log them in
   if (email && password) {
+    // Query the database for the entered email
     client.query("SELECT * FROM users WHERE email = $1;", [email])
     .then(result => {
+      // If the user entered an email that is associated with an account, proceed by checking their password
       if (result.rows.length > 0) {
+        // If the user entered the incorrect password, throw an error
         if (result.rows[0].password != djb2_xor(password)) {
           return res.status(400).send('Incorrect password');
-        } else { //If the user entered a correct email & password combination
-          //TODO: update the last logged in field in the users table
-          cookies.set('loggedIn', true);
-          console.log(cookies);
+        }
+        //If the user entered a correct email & password combination, proceed with logging them in
+        else {
+          //Update the user's session
           req.session.loggedin = true;
-          console.log('logged in: ' + req.session.loggedin);
-
           req.session.user_id = result.rows[0].user_id;
           client.query("SELECT * FROM people WHERE user_id = $1", [req.session.user_id])
           .then(result => {
@@ -163,21 +169,28 @@ app.post('/login', (req, res) => {
           })
           .catch(err => console.log(err.stack))
 
-          res.send({loggedIn: true, email: email});
+          // Tell the client that the user is logged in
+          res.send({loggedIn: true});
         }
-      } else {
+      }
+      //If the user entered an email that is not associated with an account, throw an error:
+      else {
         res.status(400).send('Incorrect email');
       }
     })
     .catch(err => console.log(err.stack))
     console.log(req.session.person_id)
-
+  }
+  // If the user didn't enter all the required information, throw an error
+  else {
+    res.status(400).send('Must enter a valid email and password');
   }
 })
 
-// Display matches in dashboard
+// Handle POST request from dashboard page; display matches in dashboard
 app.post('/dashboard', (req, res) => {
 
+  // Query the database for the user's match information based on their session
   client.query("SELECT * FROM people WHERE user_id = $1", [req.session.user_id])
   .then(result => {
     if (result.rows.length > 0) {
@@ -324,16 +337,13 @@ app.post('/profile', function(req, res) {
   //.then(() => client.end())
 });
 
-// Handle POST request; tell React app that the user is logged in
-app.post('/loggedIn', (req, res) => res.send({loggedIn: req.session.loggedin}));
-
 //Handle POST requests from the logout page
 app.post('/logout', (req, res) => {
   //Clear the session cookies
   req.session.destroy((err) => console.log(err));
 })
 
-//Hash function -- credit: https://gist.github.com/eplawless/52813b1d8ad9af510d85
+//Hash function for hashing the passwords -- credit: https://gist.github.com/eplawless/52813b1d8ad9af510d85
 function djb2_xor(str) {
   let len = str.length
   let h = 5381
@@ -347,7 +357,7 @@ function djb2_xor(str) {
 const port = process.env.PORT || 5000;
 app.listen(port, () => console.log(`Listening on port ${port}...`));
 
-// TODO: end client connection when server closes
+// End client connection when server closes
 process.on('SIGTERM', () => {
   console.info('SIGTERM signal received.');
   console.log('Closing http server.');

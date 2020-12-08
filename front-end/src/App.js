@@ -10,10 +10,6 @@ import Login from './login/login';
 import Dashboard from './dashboard/dashboard';
 import Profile from './profile/profile';
 
-//TODO: Add logic for changing the navbar for when the user is vs. isn't logged in:
- // When the user is logged in, they should have a home, dashboard, profile, and log out page
- // When the user is not logged in, they should have a home, register, and log in page
-
 export default function App() {
   //Credit: https://www.w3schools.com/js/js_cookies.asp
   const loggedIn = (cname) => {
@@ -38,9 +34,7 @@ export default function App() {
 
   const [user, setUser] = useState({ loggedIn: loggedIn('loggedIn') });
 
-  //const [user, setUser] = useState({ loggedIn: false });
-
-  //Set the background color of every page:
+  //Set the background color of every page
   useEffect(() => {
     document.body.style.backgroundColor = '#F8FBFE';
   }, []);

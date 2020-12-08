@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { Row, Container } from 'react-bootstrap';
+import { Row, Container, Form } from 'react-bootstrap';
 import Axios from "axios";
 
 export default function Dashboard(){
@@ -16,10 +16,11 @@ export default function Dashboard(){
         // TODO: Sometimes only loads the second time, need to fix
         Axios.post('/dashboard', {})
         .then((response) => {
+            console.log(response.data)
             if (response.data) {
                 nameRef.current.value = response.data.name;
-                matchInfo = response.data;
-                console.log("MATCH1: " + response.data.name)
+                // matchInfo = response.data;
+                // console.log("MATCH1: " + response.data.name)
             }
         })
         .catch(error => {
@@ -35,8 +36,9 @@ export default function Dashboard(){
         </Container>
 
         <Container className="text-center">
-            <h4>Your match: {matchInfo.name} </h4>
-            <h4>You can contact them at {matchInfo.email} </h4>
+            <Form.Control type="text" ref={nameRef} readOnly /> 
+            {/* <h4>Your match: {matchInfo.name} </h4>
+            <h4>You can contact them at {matchInfo.email} </h4> */}
         </Container>
 
         </>

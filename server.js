@@ -137,6 +137,15 @@ app.post('/login', (req, res) => {
           console.log('logged in: ' + req.session.loggedin);
 
           req.session.user_id = result.rows[0].user_id;
+          client.query("SELECT * FROM people WHERE user_id = $1", [req.session.user_id])
+          .then(result => {
+            if (result.rows.length > 0) {
+              req.session.person_id = result.rows[0].person_id;
+              console.log('in query in login post')
+              console.log(req.session.person_id)
+            }
+          })
+          .catch(err => console.log(err.stack))
 
           res.send({loggedIn: true, email: email});
         }
@@ -145,32 +154,47 @@ app.post('/login', (req, res) => {
       }
     })
     .catch(err => console.log(err.stack))
+    console.log(req.session.person_id)
+
   }
 })
 
 // Display matches in dashboard
 app.post('/dashboard', (req, res) => {
-  client.query("SELECT * FROM matches WHERE person1_id = $1 OR person2_id = $1", [req.session.person_id])
+
+  client.query("SELECT * FROM people WHERE user_id = $1", [req.session.user_id])
   .then(result => {
     if (result.rows.length > 0) {
-      // User has been matched, return match on the dashboard
-      var temp_id;
-      if (result.rows[0].person1_id == req.session.person_id) {
-        temp_id = result.rows[0].person2_id
-      }
-      else {
-        temp_id = result.rows[0].person1_id
-      }
-      client.query("SELECT name FROM users WHERE user_id IN (SELECT user_id FROM people WHERE person_id = $1)", [temp_id])
-        .then(result => {
-          if (result.rows.length > 0) {
-            res.send(JSON.stringify(result.rows[0]))
+      req.session.person_id = result.rows[0].person_id;
+  // }
+  // })
+  // .catch(err => console.log(err.stack))
+      client.query("SELECT * FROM matches WHERE person1_id = $1 OR person2_id = $1", [req.session.person_id])
+      .then(result => {
+        if (result.rows.length > 0) {
+          // User has been matched, return match on the dashboard
+          var temp_id;
+          if (result.rows[0].person1_id == req.session.person_id) {
+            temp_id = result.rows[0].person2_id
           }
-        })
-        .catch(err => console.log(err.stack))
-    } 
-    else {
-      res.send(JSON.stringify(''));
+          else {
+            temp_id = result.rows[0].person1_id
+          }
+          // console.log(temp_id)
+          client.query("SELECT name FROM users WHERE user_id IN (SELECT user_id FROM people WHERE person_id = $1)", [temp_id])
+          .then(result => {
+            if (result.rows.length > 0) {
+            console.log(result.rows[0])
+            res.send(JSON.stringify(result.rows[0]))
+            }
+          })
+          .catch(err => console.log(err.stack))
+        } 
+        else {
+          res.send(JSON.stringify(''));
+        }
+    })
+    .catch(err => console.log(err.stack))
     }
   })
   .catch(err => console.log(err.stack))
@@ -208,7 +232,7 @@ app.post('/profile', function(req, res) {
     .then(result => {
       if (result.rows.length > 0) {
         // User has already inputted profile information, display it on the page
-        req.session.person_id = result.rows[0].person_id;
+        // req.session.person_id = result.rows[0].person_id;
       
         res.send(JSON.stringify(result.rows[0]));
       } else {

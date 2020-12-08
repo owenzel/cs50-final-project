@@ -14,12 +14,26 @@ export default function Login(props){
             password: passwordRef.current.value,
         }).then((response) => {
             console.log(response);
-            document.cookie = 'loggedIn=true';
-            if (response.data.loggedIn) {
-                props.setUser({ loggedIn: true});
-            } else {
-                props.setUser({ loggedIn: false});
+            // If there was an error, alert the user
+            if (response.data.error) {
+                e.preventDefault();
+                alert(response.data.error);
             }
+
+            // If there were no errors, update the cookies and the state to reflect the user's login
+            else {
+                if (response.data.loggedIn) {
+                    document.cookie = 'loggedIn=true';
+                    props.setUser({ loggedIn: true});
+                } else {
+                    document.cookie = 'loggedIn=false';
+                    props.setUser({ loggedIn: false});
+                }
+            }
+        })
+        .catch(error => {
+            console.log(error);
+            alert("There was an error. Please refresh and try again.");
         });
     }
 

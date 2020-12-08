@@ -99,92 +99,109 @@ app.get('*', (req, res) => {
 })
 
 // Handle POST request from register page; insert data into users table
-app.post('/register', (req, res) => {
+app.post('/register', [
+  // Ensure user inputs are valid
+  body('name').not().isEmpty(),
+  body('email').isEmail().normalizeEmail(),
+  body('password').not().isEmpty(),
+], (req, res) => {
+  // If the user inputs are not valid, throw an error
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    console.log(errors.array());
+    return res.send({ error: 'Please enter a valid name, email, and password.' });
+  }
+
+  //If the user entered all required information, proceed with registering them
   const name = req.body.name;
   const email = req.body.email;
   const password = req.body.password;
 
-  //If the user entered all required information, proceed with registering them
-  if (name && email && password)
-  {
-    //Query databse to ensure user doesn't already have an account with the same email address
-    client.query("SELECT * FROM users WHERE email = $1", [email])
-    .then(result => {
-      // If the user already has an account, tell the frontend to alert the user
-      if (result.rows.length > 0) {
-        console.log('duplicate email')
-        res.send({accountAlreadyExists: true});
-      } 
-      //If the user doesn't already have an account, attempt to register them
-      else {
-        const hashedPassword = djb2_xor(password);
-        client.query("INSERT INTO users(name, password, email, created_on, last_login) VALUES($1, $2, $3, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);", [name, hashedPassword, email])
-        .then(result => {
-          console.log('inserting')
-          if (result.rowCount === 1) {
-            res.send(JSON.stringify(result));
-          } else {
-            res.status(400).send('Error connecting with the database');
-          }
-        })
-        .catch(err => { console.log(err.stack); })
-      }
-    })
-    .catch(err => console.log(err.stack))
-  }
-  //If the user didn't enter all required information, throw an error
-  else {
-    res.status(400).send('Must enter a valid name, email, and password');
-  }
+  //Query databse to ensure user doesn't already have an account with the same email address
+  client.query("SELECT * FROM users WHERE email = $1", [email])
+  .then(result => {
+    // If the user already has an account, tell the frontend to alert the user
+    if (result.rows.length > 0) {
+      return res.send({ error: 'You already have an account with this email address. Please log in!' });
+    } 
+    //If the user doesn't already have an account, attempt to register them
+    else {
+      const hashedPassword = djb2_xor(password);
+      client.query("INSERT INTO users(name, password, email, created_on, last_login) VALUES($1, $2, $3, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);", [name, hashedPassword, email])
+      .then(result => {
+        if (result.rowCount === 1) {
+          res.send(JSON.stringify(result));
+        } else {
+          return res.send({ error: 'There was an error. Please refresh and try again.' });
+        }
+      })
+      .catch(err => { 
+        console.log(err.stack);
+        return res.send({ error: 'There was an error. Please refresh and try again.' });
+      })
+    }
+  })
+  .catch(err => {
+    console.log(err.stack);
+    return res.send({ error: 'There was an error. Please refresh and try again.' });
+  })
 })
 
 // Handle POST request from login page; store logged in user's session -- Credit: https://codeshack.io/basic-login-system-nodejs-express-mysql/
-app.post('/login', (req, res) => {
+app.post('/login', [
+  // Ensure user inputs are valid
+  body('email').isEmail().normalizeEmail(),
+  body('password').not().isEmpty(),
+], (req, res) => {
+  // If the user inputs are not valid, throw an error
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    console.log(errors.array());
+    return res.send({ error: 'Please enter a valid email and password.' });
+  }
+
+  //If the user entered all required information, proceed with attempting to log them in
   const email = req.body.email;
   const password = req.body.password;
 
-  //If the user entered all required information, proceed with attempting to log them in
-  if (email && password) {
-    // Query the database for the entered email
-    client.query("SELECT * FROM users WHERE email = $1;", [email])
-    .then(result => {
-      // If the user entered an email that is associated with an account, proceed by checking their password
-      if (result.rows.length > 0) {
-        // If the user entered the incorrect password, throw an error
-        if (result.rows[0].password != djb2_xor(password)) {
-          return res.status(400).send('Incorrect password');
-        }
-        //If the user entered a correct email & password combination, proceed with logging them in
-        else {
-          //Update the user's session
-          req.session.loggedin = true;
-          req.session.user_id = result.rows[0].user_id;
-          client.query("SELECT * FROM people WHERE user_id = $1", [req.session.user_id])
-          .then(result => {
-            if (result.rows.length > 0) {
-              req.session.person_id = result.rows[0].person_id;
-              console.log('in query in login post')
-              console.log(req.session.person_id)
-            }
-          })
-          .catch(err => console.log(err.stack))
-
-          // Tell the client that the user is logged in
-          res.send({loggedIn: true});
-        }
+  // Query the database for the entered email
+  client.query("SELECT * FROM users WHERE email = $1;", [email])
+  .then(result => {
+    // If the user entered an email that is associated with an account, proceed by checking their password
+    if (result.rows.length > 0) {
+      // If the user entered the incorrect password, throw an error
+      if (result.rows[0].password != djb2_xor(password)) {
+        return res.send({ error: 'Incorrect password.' });
       }
-      //If the user entered an email that is not associated with an account, throw an error:
+      //If the user entered a correct email & password combination, proceed with logging them in
       else {
-        res.status(400).send('Incorrect email');
+        //Update the user's session
+        req.session.loggedin = true;
+        req.session.user_id = result.rows[0].user_id;
+        client.query("SELECT * FROM people WHERE user_id = $1", [req.session.user_id])
+        .then(result => {
+          if (result.rows.length > 0) {
+            req.session.person_id = result.rows[0].person_id;
+          }
+        })
+        .catch(err => {
+          console.log(err.stack);
+          return res.send({ error: 'There was an error. Please refresh and try again.' });
+        })
+
+        // Tell the client that the user is logged in
+        return res.send({ loggedIn: true });
       }
-    })
-    .catch(err => console.log(err.stack))
-    console.log(req.session.person_id)
-  }
-  // If the user didn't enter all the required information, throw an error
-  else {
-    res.status(400).send('Must enter a valid email and password');
-  }
+    }
+    //If the user entered an email that is not associated with an account, throw an error:
+    else {
+      return res.send({ error: 'The email you entered is not associated with an account. Please register for an account!' });
+    }
+  })
+  .catch(err => {
+    console.log(err.stack);
+    return res.send({ error: 'There was an error. Please refresh and try again.' });
+  })
 })
 
 // Handle POST request from dashboard page; display matches in dashboard

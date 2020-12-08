@@ -24,18 +24,19 @@ export default function Register(props){
             email: emailRef.current.value,
             password: passwordRef.current.value,
         }).then((response) => {
-            console.log(response)
-            //If the user's email is already associated with an account, send an alert:
-            if (response.data.accountAlreadyExists)
-            {
-                console.log('account exists');
-                alert("You already have an account with this email address. Please log in!");
-            } else {
+            // If there was an error, alert the user
+            if (response.data.error) {
+                e.preventDefault();
+                alert(response.data.error);
+            }
+            // If there were no errors, alert the user that they can now log in
+            else {
                 alert("You are registered! Now you can log in with your new account!");
             }
         })
         .catch(error => {
             console.log(error);
+            alert("There was an error. Please refresh and try again.");
         });
     }
     

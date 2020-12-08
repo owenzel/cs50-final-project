@@ -42,6 +42,7 @@ var h = 24 - date.getHours();
 var matches;
 
 const Matching = require('./matching.js');
+const e = require('express');
 
 function updateMatches() {
   if (d == 0 && h == 0) {
@@ -107,16 +108,28 @@ app.post('/register', (req, res) => {
   const password = req.body.password;
   if (name && email && password)
   {
-    const hashedPassword = djb2_xor(password);
-    client.query("INSERT INTO users(name, password, email, created_on, last_login) VALUES($1, $2, $3, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);", [name, hashedPassword, email])
+    //Query databse to ensure user doesn't already have an account with the same email address
+    client.query("SELECT * FROM users WHERE email = $1", [email])
     .then(result => {
-      if (result.rowCount === 1) {
-        res.send(JSON.stringify(result));
-      } else {
-        res.status(400).send('Error connecting with the database');
+      // If the user already has an account, tell the frontend to alert the user
+      if (result.rows.length > 0) {
+        console.log('duplicate email')
+        res.send({accountAlreadyExists: true});
+      } else { //If the user doesn't already have an account, attempt to register them
+        const hashedPassword = djb2_xor(password);
+        client.query("INSERT INTO users(name, password, email, created_on, last_login) VALUES($1, $2, $3, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);", [name, hashedPassword, email])
+        .then(result => {
+          console.log('inserting')
+          if (result.rowCount === 1) {
+            res.send(JSON.stringify(result));
+          } else {
+            res.status(400).send('Error connecting with the database');
+          }
+        })
+        .catch(err => { console.log(err.stack); })
       }
     })
-    .catch(err => { console.log(err.stack); })
+    .catch(err => console.log(err.stack))
   } else {
     res.status(400).send('Server error.');
   }
@@ -184,7 +197,7 @@ app.post('/dashboard', (req, res) => {
             temp_id = result.rows[0].person1_id
           }
           // console.log(temp_id)
-          client.query("SELECT name FROM users WHERE user_id IN (SELECT user_id FROM people WHERE person_id = $1)", [temp_id])
+          client.query("SELECT name, email FROM users WHERE user_id IN (SELECT user_id FROM people WHERE person_id = $1)", [temp_id])
           .then(result => {
             if (result.rows.length > 0) {
             console.log(result.rows[0])

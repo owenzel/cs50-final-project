@@ -9,27 +9,40 @@ import Register from './register/register';
 import Login from './login/login';
 import Dashboard from './dashboard/dashboard';
 import Profile from './profile/profile';
-import Axios from "axios";
 
 //TODO: Add logic for changing the navbar for when the user is vs. isn't logged in:
  // When the user is logged in, they should have a home, dashboard, profile, and log out page
  // When the user is not logged in, they should have a home, register, and log in page
 
 export default function App() {
-  const [user, setUser] = useState({ loggedIn: true});
+  //Credit: https://www.w3schools.com/js/js_cookies.asp
+  const loggedIn = (cname) => {
+    var name = cname + "=";
+    var decodedCookie = decodeURIComponent(document.cookie);
+    var ca = decodedCookie.split(';');
+    for(var i = 0; i <ca.length; i++) {
+      var c = ca[i];
+      while (c.charAt(0) == ' ') {
+        c = c.substring(1);
+      }
+      if (c.indexOf(name) == 0) {
+        console.log(c.substring(name.length, c.length))
+        if (c.substring(name.length, c.length) == 'true')
+        {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  const [user, setUser] = useState({ loggedIn: loggedIn('loggedIn') });
+
+  //const [user, setUser] = useState({ loggedIn: false });
 
   //Set the background color of every page:
   useEffect(() => {
     document.body.style.backgroundColor = '#F8FBFE';
-    
-    Axios.post('/loggedIn', {
-    })
-    .then(response => {
-      setUser({ loggedIn: response.data.loggedIn});
-    })
-    .catch(error => {
-      console.log(error);
-    });
   }, []);
 
   return (

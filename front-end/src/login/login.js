@@ -14,6 +14,7 @@ export default function Login(props){
             password: passwordRef.current.value,
         }).then((response) => {
             console.log(response);
+            document.cookie = 'loggedIn=true';
             if (response.data.loggedIn) {
                 props.setUser({ loggedIn: true});
             } else {

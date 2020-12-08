@@ -1,6 +1,8 @@
 require('dotenv').config()
 const express = require('express'); // a framework for better handling http requests & responses
 const session = require('express-session');
+const Cookies = require('universal-cookie');
+const cookies = new Cookies();
 const path = require('path');
 //const { body, validationResult } = require('express-validator'); //set of middlewares that will help clean up user input
 const bodyParser = require('body-parser');
@@ -132,8 +134,9 @@ app.post('/login', (req, res) => {
           return res.status(400).send('Incorrect password');
         } else { //If the user entered a correct email & password combination
           //TODO: update the last logged in field in the users table
+          cookies.set('loggedIn', true);
+          console.log(cookies);
           req.session.loggedin = true;
-          req.session.email = email;
           console.log('logged in: ' + req.session.loggedin);
 
           req.session.user_id = result.rows[0].user_id;

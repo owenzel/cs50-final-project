@@ -5,6 +5,7 @@ import Axios from "axios";
 function Logout(props){
     function handleClick(e) {
         props.setUser({ loggedIn: false });
+        document.cookie = 'loggedIn=false';
         
         //Send a POST request to log the user out
         Axios.post('/logout')

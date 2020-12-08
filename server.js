@@ -284,6 +284,9 @@ app.post('/profile', function(req, res) {
   //.then(() => client.end())
 });
 
+// Handle POST request; tell React app that the user is logged in
+app.post('/loggedIn', (req, res) => res.send({loggedIn: req.session.loggedin}));
+
 //Handle POST requests from the logout page
 app.post('/logout', (req, res) => {
   //Clear the session cookies

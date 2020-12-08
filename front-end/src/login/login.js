@@ -15,9 +15,9 @@ export default function Login(props){
         }).then((response) => {
             console.log(response);
             if (response.data.loggedIn) {
-                props.setUser({ loggedIn: true, email: response.data.email });
+                props.setUser({ loggedIn: true});
             } else {
-                props.setUser({ loggedIn: false, email: '' });
+                props.setUser({ loggedIn: false});
             }
         });
     }

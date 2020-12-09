@@ -1,8 +1,8 @@
-####  VirtuConnect
+# VirtuConnect
 
 Project Video: https://www.youtube.com/watch?v=IRtBms3T5Xc&ab_channel=CynthiaChen
 
-Part A: Accessing the Main Project
+## Part A: Accessing the Main Project
 
 There are two different ways to access our project. Method One allows you to quickly view the final result, and Method Two allows you to modify the code on your own device.
 
@@ -36,7 +36,7 @@ NOTES:
 - If you make changes to the code outside of the front-end/ folder, you must restart the server by entering the following in your original terminal: Ctrl+C on PC or Cmd+C on Mac. Then, repeat step 7.
 - If you make changes to the code inside of the front-end/ folder and you followed 8a, you must rebuild the frontend by running “npm run build” again in the front-end/ folder. If you followed 8b, you should see your changes reflected while the development server is still running (from “npm run start”). If not, you may need to refresh your browser tab.
 
-Part B: Connecting to the Database
+## Part B: Connecting to the Database
 
 If you followed Method 2 in Part A and would like to learn how to connect to the database to make your own queries (beyond what we provide for you in the code), please continue with this section. Otherwise, skip to Part C.
 
@@ -136,7 +136,7 @@ CREATE TABLE scheduling_preferences (
 ); 
 ```
 
-Part C: Using the Main Project
+## Part C: Using the Main Project
 
 Once you have (a) local server(s) up and running or you’re on the Heroku build at https://cko-cs50-final-project.herokuapp.com/, you should see the Home “page”. (Technically, this is a single-page React application, but we’ll refer to the main React Components -- Home, Register, Login, Dashboard, and Profile -- as pages from now on).
 
@@ -156,7 +156,7 @@ You will most likely be matched with a fictional person from our test data. Do n
 
 When you’re done video chatting, simply close the tab(s). Don’t forget to log out of your account in the main application by clicking the Log Out button on the Navigation Bar.
 
-Part D: Accessing the Secondary Project
+## Part D: Accessing the Secondary Project
 The secondary application, which was 90% derived from a YouTube tutorial (https://www.youtube.com/watch?v=DvlyzDZDEq4) and is only meant to complement the main project, can similarly be accessed through two methods:
 
 Method One: Use the online public build.
@@ -181,8 +181,8 @@ Method Two: Create and run a local copy.
 
 NOTE: If you make changes to the code, you must restart the server by entering the following in your terminal: Ctrl+C on PC or Cmd+C on Mac. Then, repeat step 6.
 
-Part E: Using the Secondary Project
-**NOTE: This video chat web app is not supported by some phones. Please use a computer.**
+## Part E: Using the Secondary Project
+NOTE: This video chat web app is not supported by some phones. Please use a computer.
 
 Once you have a local server up and running or you’re on the Heroku build at https://cs50-final-project-video-chat.herokuapp.com/, you should see the following: “Please append a '/' to the URL followed by your video chat room ID. (Check your email for the full link.)”.
 

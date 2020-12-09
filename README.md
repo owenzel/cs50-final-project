@@ -46,6 +46,7 @@ It may also be possible to establish this connection to another database or with
 
 The credentials for connecting to our database on Heroku are as follows (include the following segment of code in your file):
 
+```
 const client = new Client({
     user: 'ldqkazfnoxapti',
     host: 'ec2-18-210-90-1.compute-1.amazonaws.com',
@@ -55,7 +56,8 @@ const client = new Client({
     ssl: {
       rejectUnauthorized: false
     }
-});
+}); 
+```
 
 Connect our client with “client.connect();” 
 
@@ -131,7 +133,8 @@ CREATE TABLE scheduling_preferences (
 	CONSTRAINT fk_week
 		FOREIGN KEY(day_id)
 			REFERENCES week(weekday_id)
-); ```
+); 
+```
 
 Part C: Using the Main Project
 

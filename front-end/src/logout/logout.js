@@ -14,7 +14,6 @@ export default function Logout(props) {
         Axios.post('/logout')
         .catch(err => {
             console.log(err);
-            alert('Log out failed. Please try again.');
         });
     }
     

@@ -9,7 +9,7 @@ export default function Dashboard(){
     var h = 24 - date.getHours();
 
     const nameRef = useRef();
-    var matchInfo;
+    const emailRef = useRef()
     
         // TODO: Sometimes only loads the second time, need to fix
         Axios.post('/dashboard', {})
@@ -17,8 +17,7 @@ export default function Dashboard(){
             console.log(response.data)
             if (response.data) {
                 nameRef.current.value = response.data.name;
-                // matchInfo = response.data;
-                // console.log("MATCH1: " + response.data.name)
+                emailRef.current.value = response.data.email;
             }
         })
         .catch(error => {
@@ -27,16 +26,19 @@ export default function Dashboard(){
 
     return (
         <>
+
         <Container className="text-center" style={{ backgroundColor: "#B9E7CF"}}>
             <Row className="col-md-5 p-lg-5 mb-5 mt-3 mx-auto">
-                <h4><b>{d} days and {h} hours</b> until your next match!</h4>
-            </Row>
+                <h4>Your match: </h4>
+                <Form.Control type="text" class = "col-xs-3" ref={nameRef} readOnly /> 
+                <h4> </h4>
+                <h4>You can contact them at: </h4>
+                <Form.Control type="text" class = "col-xs-3" ref={emailRef} readOnly />
+            </Row> 
         </Container>
 
         <Container className="text-center">
-            <Form.Control type="text" ref={nameRef} readOnly /> 
-            {/* <h4>Your match: {matchInfo.name} </h4>
-            <h4>You can contact them at {matchInfo.email} </h4> */}
+            <h4><b>{d} days and {h} hours</b> until your next match!</h4>
         </Container>
 
         </>

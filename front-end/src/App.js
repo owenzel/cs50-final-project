@@ -1,7 +1,8 @@
+// Library imports
 import React, { useState, useEffect } from "react";
 import { Route, Redirect, Switch } from 'react-router-dom';
 
-//Components:
+// Component imports
 import NavBar from './navbar/navbar';
 import Home from './home/home';
 import Register from './register/register';
@@ -10,8 +11,8 @@ import Dashboard from './dashboard/dashboard';
 import Profile from './profile/profile';
 
 export default function App() {
-  //Credit: https://www.w3schools.com/js/js_cookies.asp
-  const loggedIn = (cname) => {
+  // Declare a function that parses the browser cookies string and returns whether or not the passed in key and value exist in the cookies -- Credit for most of the function: https://www.w3schools.com/js/js_cookies.asp
+  const loggedIn = (cname, vname) => {
     var name = cname + "=";
     var decodedCookie = decodeURIComponent(document.cookie);
     var ca = decodedCookie.split(';');
@@ -22,7 +23,7 @@ export default function App() {
       }
       if (c.indexOf(name) == 0) {
         console.log(c.substring(name.length, c.length))
-        if (c.substring(name.length, c.length) == 'true')
+        if (c.substring(name.length, c.length) == vname)
         {
           return true;
         }
@@ -31,19 +32,19 @@ export default function App() {
     return false;
   }
 
-  const [user, setUser] = useState({ loggedIn: loggedIn('loggedIn') });
+  // Use the UseState React Hook to change the links (and the navbar) available to the user based on whether they're logged in
+  const [user, setUser] = useState({ loggedIn: loggedIn('loggedIn', 'true') });
 
-  //Set the background color of every page
+  // Set the background color of every page upon loading
   useEffect(() => {
     document.body.style.backgroundColor = '#F8FBFE';
   }, []);
 
+  // Display the Navbar and use Switch and Route to render components based on the current URL
   return (
     <div>
       <NavBar loggedIn={user.loggedIn} setUser={setUser}/>
 
-      {/* A <Switch> looks through its children <Route>s and 
-          renders the first one that matches the current URL. */}
       <Switch>
           <Route path="/" exact>
             <Home />

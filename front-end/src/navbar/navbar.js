@@ -1,18 +1,20 @@
+// Library imports
 import React from 'react';
 import { Nav } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 
-//Components:
+// Component imports
 import Logout from '../logout/logout';
 
 export default function Navbar(props) {
+    // Declare the style of all of the links on the nav bar
     const linkStyle = {
       color: "black",
       fontSize: "150%",
       marginRight: "3px"
     }
   
-    //Navigation links to render based on whether the user is logged in
+    // Declare which navigation links to render based on whether the user is logged in
     const navLinks = props.loggedIn ? 
     <>
       <Nav.Item as="li">
@@ -35,6 +37,7 @@ export default function Navbar(props) {
       </Nav.Item>
     </>
   
+    // Display the navigation bar with the home link and the other appropriate links based on whether the user is logged in
     return (
       <>
       <Nav defaultActiveKey="/home" as="ul">

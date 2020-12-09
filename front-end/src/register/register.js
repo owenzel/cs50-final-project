@@ -1,17 +1,21 @@
+// Library imports
 import React, { useRef, useState } from 'react';
 import { Row, Col, Container, Form, Button, Alert } from 'react-bootstrap';
 import Axios from "axios";
-import './register.css';
 
-export default function Register(props){
+export default function Register(props) {
+    // Use the UseRef React Hook to reference the name, email, password, and confirm password fiels
     const nameRef = useRef();
     const emailRef = useRef();
     const passwordRef = useRef();
     const confirmPasswordRef = useRef();
 
-    const [alert, setAlert] = useState(<></>)
+    // Use the UseState React Hook to display an alert to the user if there is an error (and update the state based on the type of error)
+    const [alert, setAlert] = useState(<></>);
 
+    // Handle the user pressing the register button
     function handleSubmit(e) {
+        // Prevent the default refresh upon form submission
         e.preventDefault();
 
         // If the passwords don't match, alert the users
@@ -25,13 +29,14 @@ export default function Register(props){
             return;
         }
 
-        // If the passwords match and all fields are filled out, POST the data
+        // If the passwords match, POST the data
         Axios.post('/register', {
             name: nameRef.current.value,
             email: emailRef.current.value,
             password: passwordRef.current.value,
-        }).then((response) => {
-            // If there was an error, alert the user
+        })
+        .then((response) => {
+            // If the user incorrectly filled out the form (e.g., didn't fill out a field or didn't submit a valid email), alert the user with a message passed in from the server
             if (response.data.error) {
                 setAlert(
                     <Alert variant="danger">
@@ -39,7 +44,7 @@ export default function Register(props){
                     </Alert>
                 );
             }
-            // If there were no errors, alert the user that they can now log in and clear the input boxes
+            // If the user correctly filled out the field and there were no errors, alert the user that they can now log in, and clear the input boxes
             else {
                 setAlert(
                     <Alert variant="success">
@@ -53,6 +58,7 @@ export default function Register(props){
                 confirmPasswordRef.current.value = "";
             }
         })
+        // If there was an error with the POST request, alert the user and log the exact error to the console
         .catch(error => {
             console.log(error);
             setAlert(
@@ -63,6 +69,7 @@ export default function Register(props){
         });
     }
     
+    // Display a registration form
     return (
         <Container className="mt-5">
             <Row>

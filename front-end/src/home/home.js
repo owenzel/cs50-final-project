@@ -1,10 +1,11 @@
+// Library imports
 import React from 'react';
 import { Row, Col, Container } from 'react-bootstrap';
 
-//Components:
+// Component imports
 import InfoCard from './../infoCard/infoCard';
 
-//Images:
+// Image imports
 import nameTag from './../assets/name-tag.jpg'; //Credit: http://clipart-library.com/nametag-cliparts.html
 import questionMarks from './../assets/question-marks.png'; //Credit: http://clipart-library.com/images_k/question-clipart-transparent/question-clipart-transparent-9.png
 import emailIcon from './../assets/email-icon.png'; //Credit: http://clipart-library.com/image_gallery/276318.png
@@ -12,6 +13,7 @@ import mouseClick from './../assets/mouse-click.png'; //Credit: http://clipart-l
 import schedule from './../assets/schedule.png'; //Credit: http://clipart-library.com/newhp/105-1059879_clipart-calendar-meeting-schedule.png
 import friends from './../assets/friends.png'; //Credit: http://clipart-library.com/newhp/10-102347_best-friends-png-best-friend-clipart-png.png
 
+// Display the website title and instructions (via info card components)
 export default function Home() {
     return (
         <>

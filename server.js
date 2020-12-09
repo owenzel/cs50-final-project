@@ -47,7 +47,6 @@ function updateMatches() {
     // Re-match everyone in the people table, matches stored as object
     client.query("truncate matches")
     .catch(err => {console.log(err.stack); })
-    console.log('done')
     client.query("SELECT person_id FROM people;")
     .then(result => {
       matches = Matching(result.rows);
@@ -162,7 +161,7 @@ app.post('/login', [
     return res.send({ error: 'Please enter a valid email and password.' });
   }
 
-  //If the user entered all required information, proceed with attempting to log them in
+  // If the user entered all required information, proceed with attempting to log them in
   const email = req.body.email;
   const password = req.body.password;
 

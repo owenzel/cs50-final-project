@@ -1,40 +1,48 @@
-import React, { useEffect, useRef } from 'react';
-import { Row, Col, Container, Form, Button } from 'react-bootstrap';
+// Library imports
+import React, { useRef, useState } from 'react';
+import { Row, Col, Container, Form, Button, Alert } from 'react-bootstrap';
 import Axios from "axios";
-import './profile.css';
 
-export default function Profile(props){
+export default function Profile(props) {
+    // Use the UseRef React Hook to reference all of the fields in the profile form
     const orgRef = useRef();
     const addressRef = useRef();
-
     const orgRefDisplay = useRef();
     const addressRefDisplay = useRef();
-
     const dayRef = useRef();
 
-    // Send GET request upon loading the page
-    useEffect(() => {
-        // Axios.get('/profile', {
-        Axios.post('/profile', {
-            params: {
-                id: 1
-            }
-        }).then((response) => {
-            // If the user had previously filled in the form, then we display that information
-            if (response.data) {
-                orgRefDisplay.current.value = response.data.organization
-                addressRefDisplay.current.value = response.data.address
-            }
-        }).catch(error => {
-            console.log(error.response)
-        });
+    // Use the UseState React Hook to display an alert to the user if there is an error sending a request to the server
+    const [alert, setAlert] = useState(<></>);
+
+    // Send a POST request with an ID of 1 (as opposed to 2 -- see the second POST request) to the server to obtain any profile information that the user previously submitted (if any)
+    Axios.post('/profile', {
+        params: {
+            id: 1
+        }
+    })
+    .then((response) => {
+        // If the user had previously filled out the form, then display that information
+        if (response.data) {
+            orgRefDisplay.current.value = response.data.organization
+            addressRefDisplay.current.value = response.data.address
+        }
+    })
+    // If there was an error with the POST request, alert the user and log the exact error to the console
+    .catch(error => {
+        console.log(error);
+        setAlert(
+            <Alert variant="danger">
+                <Alert.Heading>There was an error. Please refresh and try again.</Alert.Heading>
+            </Alert>
+        );
     });
 
-    function handleSubmit(event) {
-        // If the form field is filled out, POST the data
-        event.preventDefault();
-        console.log(dayRef.current.value);
+    // Handle the user updating their profile information
+    function handleSubmit(e) {
+        // Prevent the page from refreshing
+        e.preventDefault();
 
+        // Send a POST request to the server with an ID of 2 (as opposed to 1 -- see the above POST request) to update the user's profile information in the database
         Axios.post('/profile', {
             organization: orgRef.current.value,
             address: addressRef.current.value,
@@ -42,19 +50,31 @@ export default function Profile(props){
             params: {
                 id: 2
             }
-        }).then((response) => {
+        })
+        .then((response) => {
             orgRefDisplay.current.value = response.data.organization
             addressRefDisplay.current.value = response.data.address
 
             orgRef.current.value = ''
             addressRef.current.value = ''
-        }).catch(error => {
-            console.log(error.response)
+        })
+        // If there was an error with the POST request, alert the user and log the exact error to the console
+        .catch(error => {
+            console.log(error);
+            setAlert(
+                <Alert variant="danger">
+                    <Alert.Heading>There was an error. Please refresh and try again.</Alert.Heading>
+                </Alert>
+            );
         });
     }
     
-    return (
+    // Display the profile form (with any previously submitted information)
+    return ( 
         <Container className="mt-5">
+            <Row>
+                {alert}
+            </Row>
             <Row>
                 <Col className="mb-3"><h1>Profile</h1></Col>
             </Row>
@@ -92,7 +112,6 @@ export default function Profile(props){
                             </Form.Control>
                         </Form.Group>
 
-                        {/* TODO: need to store interests */}
                         <Form.Label>Please indicate your interests below.</Form.Label>
                         <Form.Group>
                             <Form.Check inline label="math" type="checkbox"></Form.Check>

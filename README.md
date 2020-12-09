@@ -72,7 +72,7 @@ To run queries such as “INSERT INTO” or “SELECT”, directly type them int
 
 If you wish to recreate the five tables currently in our database:
 
- `DROP TABLE  IF EXISTS scheduling_preferences;
+```DROP TABLE  IF EXISTS scheduling_preferences;
 DROP TABLE  IF EXISTS week;
 DROP TABLE  IF EXISTS matches;
 DROP TABLE  IF EXISTS people;
@@ -131,7 +131,7 @@ CREATE TABLE scheduling_preferences (
 	CONSTRAINT fk_week
 		FOREIGN KEY(day_id)
 			REFERENCES week(weekday_id)
-); `
+); ```
 
 Part C: Using the Main Project
 

@@ -135,12 +135,14 @@ app.post('/register', [
           return res.send({ error: 'There was an error. Please refresh and try again.' });
         }
       })
+      //If there was an error with the SQL query, send back an error message to the user
       .catch(err => { 
         console.log(err.stack);
         return res.send({ error: 'There was an error. Please refresh and try again.' });
       })
     }
   })
+  //If there was an error with the request handling, send back an error message to the user
   .catch(err => {
     console.log(err.stack);
     return res.send({ error: 'There was an error. Please refresh and try again.' });
@@ -184,6 +186,7 @@ app.post('/login', [
             req.session.person_id = result.rows[0].person_id;
           }
         })
+        //If there was an error with the SQL query, send back an error message to the user
         .catch(err => {
           console.log(err.stack);
           return res.send({ error: 'There was an error. Please refresh and try again.' });
@@ -193,11 +196,12 @@ app.post('/login', [
         return res.send({ loggedIn: true });
       }
     }
-    //If the user entered an email that is not associated with an account, throw an error:
+    //If the user entered an email that is not associated with an account, send back an error to the user
     else {
       return res.send({ error: 'The email you entered is not associated with an account. Please register for an account!' });
     }
   })
+  //If there was an error with the SQL query, send back an error message to the user
   .catch(err => {
     console.log(err.stack);
     return res.send({ error: 'There was an error. Please refresh and try again.' });

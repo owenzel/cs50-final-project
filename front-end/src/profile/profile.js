@@ -52,6 +52,7 @@ export default function Profile(props) {
             }
         })
         .then((response) => {
+            // Update information displayed on the page, and clear text input fields
             orgRefDisplay.current.value = response.data.organization
             addressRefDisplay.current.value = response.data.address
 

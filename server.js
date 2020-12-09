@@ -42,9 +42,10 @@ var d = 6 - date.getDay();
 var h = 24 - date.getHours();
 var matches;
 
+// Re-match everyone in the people table, send emails about the new matches
 function updateMatches() {
   if (d == 0 && h == 0) {
-    // Re-match everyone in the people table, matches stored as object
+    // Clear previous week's matches
     client.query("truncate matches")
     .catch(err => {console.log(err.stack); })
     client.query("SELECT person_id FROM people;")
@@ -179,17 +180,6 @@ app.post('/login', [
         //Update the user's session
         req.session.loggedin = true;
         req.session.user_id = result.rows[0].user_id;
-        client.query("SELECT * FROM people WHERE user_id = $1", [req.session.user_id])
-        .then(result => {
-          if (result.rows.length > 0) {
-            req.session.person_id = result.rows[0].person_id;
-          }
-        })
-        //If there was an error with the SQL query, send back an error message to the user
-        .catch(err => {
-          console.log(err.stack);
-          return res.send({ error: 'There was an error. Please refresh and try again.' });
-        })
 
         // Tell the client that the user is logged in
         return res.send({ loggedIn: true });
@@ -210,87 +200,79 @@ app.post('/login', [
 // Handle POST request from dashboard page; display matches in dashboard
 app.post('/dashboard', (req, res) => {
 
-  // Query the database for the user's match information based on their session
+  // Query the database for the user's match information based on their session and update session
   client.query("SELECT * FROM people WHERE user_id = $1", [req.session.user_id])
   .then(result => {
     if (result.rows.length > 0) {
       req.session.person_id = result.rows[0].person_id;
-  // }
-  // })
-  // .catch(err => console.log(err.stack))
+
+      // Query the database for the person_id of the user's most recent match
       client.query("SELECT * FROM matches WHERE person1_id = $1 OR person2_id = $1", [req.session.person_id])
       .then(result => {
+        // If the user has been matched, query the database for the name and email of that person to display on the dashboard
         if (result.rows.length > 0) {
-          // User has been matched, return match on the dashboard
           var temp_id;
+          // If the user was stored in the matches table as person1, we wish to find person2's, and vice versa if stored as person2
           if (result.rows[0].person1_id == req.session.person_id) {
             temp_id = result.rows[0].person2_id
           }
           else {
             temp_id = result.rows[0].person1_id
           }
-          // console.log(temp_id)
+          // Query the database for the name and email of the matched person to display on the user's dashboard
           client.query("SELECT name, email FROM users WHERE user_id IN (SELECT user_id FROM people WHERE person_id = $1)", [temp_id])
           .then(result => {
             if (result.rows.length > 0) {
-            console.log(result.rows[0])
             res.send(JSON.stringify(result.rows[0]))
             }
           })
-          .catch(err => console.log(err.stack))
+          //If there was an error with the SQL query, send back an error message to the user
+          .catch(err => {
+            console.log(err.stack);
+            return res.send({ error: 'There was an error. Please refresh and try again.' });
+          })
         } 
         else {
           res.send(JSON.stringify(''));
         }
-    })
-    .catch(err => console.log(err.stack))
+      })
+      //If there was an error with the SQL query, send back an error message to the user
+      .catch(err => {
+        console.log(err.stack);
+        return res.send({ error: 'There was an error. Please refresh and try again.' });
+      })
     }
   })
-  .catch(err => console.log(err.stack))
+  //If there was an error with the SQL query, send back an error message to the user
+  .catch(err => {
+    console.log(err.stack);
+    return res.send({ error: 'There was an error. Please refresh and try again.' });
+  })
 })
 
-// app.get('/profile', (req, res) => {
-//   if (req.query.id) {
-//     client.query("SELECT * FROM people WHERE user_id = $1", [req.session.user_id])
-//     .then(result => {
-//       if (result.rows.length > 0) {
-//         // User has already inputted profile information, display it on the page
-//         req.session.person_id = result.rows[0].person_id;
-      
-//         res.send(JSON.stringify(result.rows[0]));
-//       } else {
-//         res.send(JSON.stringify(''));
-//       }
-//     })
-//     .catch(err => console.log(err.stack))
-//   }
-//   else {
-//     // res.sendFile(path.join(__dirname + '/front-end/build/index.html'))
-//     // res.redirect('https://google.com')
-//     res.redirect('/profile')
-//   }
-// })
-
+// Handle POST request from the profile page; display previously submitted information; allow users to submit information
 app.post('/profile', function(req, res) {
-  // The GET request from before 
-  // console.log(req.body)
-  // console.log(req.query)
+  // If the post request sent from profile had params.id=1, display previously submitted information
   if (req.body.params.id == 1) {
-    // console.log('hi')
+    // Query database for inputted profile information to display on the profile page
     client.query("SELECT * FROM people WHERE user_id = $1", [req.session.user_id])
     .then(result => {
       if (result.rows.length > 0) {
-        // User has already inputted profile information, display it on the page
-        // req.session.person_id = result.rows[0].person_id;
-      
+        // Update session with person_id
+        req.session.person_id = result.rows[0].person_id;
+
         res.send(JSON.stringify(result.rows[0]));
       } else {
         res.send(JSON.stringify(''));
       }
     })
-    .catch(err => console.log(err.stack))
+    //If there was an error with the SQL query, send back an error message to the user
+    .catch(err => {
+      console.log(err.stack);
+      return res.send({ error: 'There was an error. Please refresh and try again.' });
+    })
   }
-  // The POST request from before
+  // If params.id=2, insert into or update tables in the database with submitted information
   else if (req.body.params.id == 2){
     const organization = req.body.organization;
     const address = req.body.address;
@@ -298,63 +280,51 @@ app.post('/profile', function(req, res) {
     // First check if we are updating or inserting
     client.query("SELECT * FROM people WHERE user_id = $1", [req.session.user_id])
     .then(result => {
-      // If the user is already in the people table, then update
-      // Currently can only update entire row, and not individual parts
+      // If the user is already in the people table, update organization and address in people
       if (result.rows.length > 0) {
         client.query("UPDATE people SET organization=$1,address=$2 WHERE user_id=$3 RETURNING *", [organization, address, req.session.user_id])
         .then(result => {
           res.send(JSON.stringify(result.rows[0]));
         })
+        //If there was an error with the SQL query, send back an error message to the user
         .catch(err => {
           console.log(err.stack);
+          return res.send({ error: 'There was an error. Please refresh and try again.' });
         })
+        // Also update scheduling_preferences with the preferred meeting day
         client.query("UPDATE scheduling_preferences SET day_id=$1 WHERE person_id=$2", [day, req.session.person_id])
-        .catch(err => {console.log(err.stack); })
+        //If there was an error with the SQL query, send back an error message to the user
+        .catch(err => {
+          console.log(err.stack);
+          return res.send({ error: 'There was an error. Please refresh and try again.' });
+        })
       }
-      // Otherwise, insert a new row
+      // Otherwise, insert a new row in people with the appropriate information about organization and address
       else {
-        // client.connect();
         client.query("INSERT INTO people(organization, address, user_id) VALUES ($1, $2, $3) RETURNING *", [organization, address, req.session.user_id])
         .then(result => {
           res.send(JSON.stringify(result.rows[0]));
         })
+        //If there was an error with the SQL query, send back an error message to the user
         .catch(err => {
           console.log(err.stack);
+          return res.send({ error: 'There was an error. Please refresh and try again.' });
         })
+        // Also insert into scheduling_preferences with the preferred meeting day
         client.query("INSERT INTO scheduling_preferences(person_id, day_id) VALUES ($1, $2)", [req.session.person_id, day])
-        .catch(err => {console.log(err.stack); })
+        //If there was an error with the SQL query, send back an error message to the user
+        .catch(err => {
+          console.log(err.stack);
+          return res.send({ error: 'There was an error. Please refresh and try again.' });
+        })
       }
     })
-  .catch(err => console.log(err.stack))
+    //If there was an error with the SQL query, send back an error message to the user
+    .catch(err => {
+      console.log(err.stack);
+      return res.send({ error: 'There was an error. Please refresh and try again.' });
+    })
   }
-  // // First check if we are updating or inserting
-  // client.query("SELECT * FROM people WHERE user_id = $1", [req.session.user_id])
-  // .then(result => {
-  //   // If the user is already in the people table, then update
-  //   // Currently can only update entire row, and not individual parts
-  //   if (result.rows.length > 0) {
-  //     client.query("UPDATE people SET organization=$1,address=$2 WHERE user_id=$3 RETURNING *", [organization, address, req.session.user_id])
-  //     .then(result => {
-  //       res.send(JSON.stringify(result.rows[0]));
-  //     })
-  //     .catch(err => {
-  //       console.log(err.stack);
-  //     })
-  //   }
-  //   // Otherwise, insert a new row
-  //   else {
-  //     // client.connect();
-  //     client.query("INSERT INTO people(organization, address, user_id) VALUES ($1, $2, $3) RETURNING *", [organization, address, req.session.user_id])
-  //     .then(result => {
-  //       res.send(JSON.stringify(result.rows[0]));
-  //     })
-  //     .catch(err => {
-  //       console.log(err.stack);
-  //     })
-  //   }
-  // })
-  // .catch(err => console.log(err.stack))
-  //.then(() => client.end())
 });
 
 //Handle POST requests from the logout page
@@ -379,7 +349,7 @@ function djb2_xor(str) {
 const port = process.env.PORT || 5000;
 app.listen(port, () => console.log(`Listening on port ${port}...`));
 
-// End client connection when server closes
+// End client connection when server closes -- credit: https://hackernoon.com/graceful-shutdown-in-nodejs-2f8f59d1c357 
 process.on('SIGTERM', () => {
   console.info('SIGTERM signal received.');
   console.log('Closing http server.');

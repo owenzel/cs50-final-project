@@ -182,7 +182,7 @@ Method Two: Create and run a local copy.
 NOTE: If you make changes to the code, you must restart the server by entering the following in your terminal: Ctrl+C on PC or Cmd+C on Mac. Then, repeat step 6.
 
 ## Part E: Using the Secondary Project
-NOTE: This video chat web app is not supported by some phones. Please use a computer.
+NOTE: This video chat web app is not supported by some phones. Please use a computer. If there are users on the call who are not showing up on any one of your screens, have all parties try refreshing the page. 
 
 Once you have a local server up and running or you’re on the Heroku build at https://cs50-final-project-video-chat.herokuapp.com/, you should see the following: “Please append a '/' to the URL followed by your video chat room ID. (Check your email for the full link.)”.
 
